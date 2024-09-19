@@ -1,15 +1,18 @@
 import express from "express"  
-import dotenv from 'dotenv'
 import appRes from "./utils/appRes"
+import dotenv from 'dotenv'
 dotenv.config()
 import connectDb from "./config/connectDB" 
+import globalErrorHandler from "./middlewares/globalErrorHandler"
+import router from "./routes/index"
 
 connectDb()
 
 const app = express() 
 const port = process.env.PORT || 9000
 
-app.use(express.json())
+app.use(express.json(), router, globalErrorHandler)
+
 app.get('/',(req,res)=>{ appRes(res,200,'','server health is fine',{})})
 
 app.use('*',(req,res)=>{appRes(res,404,'False',`${req.originalUrl} <== Route not found`,{})})
