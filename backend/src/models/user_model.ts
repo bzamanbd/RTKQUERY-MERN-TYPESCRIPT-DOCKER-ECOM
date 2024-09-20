@@ -13,7 +13,7 @@ export interface IUser extends Document{
     answer:string | undefined,
     role:"client" | "admin" | "vendor" | "driver",
     isBanned:boolean,
-
+    orders:[]
 }
 
 

@@ -15,7 +15,6 @@ const adminEmails_1 = __importDefault(require("../utils/adminEmails"));
 const isValidEmail_1 = __importDefault(require("../utils/isValidEmail"));
 const path_1 = __importDefault(require("path"));
 const imageProcessor_1 = require("../utils/imageProcessor");
-const tryCatch_1 = __importDefault(require("../middlewares/tryCatch"));
 const signup = async (req, res, next) => {
     const payload = req.body;
     if (!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer)
@@ -67,20 +66,30 @@ const signup = async (req, res, next) => {
     }
 };
 exports.signup = signup;
-exports.signin = (0, tryCatch_1.default)(async (req, res, next) => {
+const signin = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password)
         return next((0, appErr_1.default)('email and password are required', 400));
     if (!(0, isValidEmail_1.default)(email))
         return next((0, appErr_1.default)('Invalid email format', 400));
-    const user = await user_model_1.default.findOne({ email });
-    const isMatch = await bcryptjs_1.default.compare(password, user.password);
-    if (!isMatch)
-        return next((0, appErr_1.default)('Invalid Credentials', 401));
-    const secretKey = process.env.JWT_SECRET;
-    if (!secretKey)
-        return res.status(500).json({ error: 'Secret key is not defined' });
-    const options = { expiresIn: '1h', algorithm: 'HS256' };
-    const tocken = jsonwebtoken_1.default.sign({ id: user._id }, secretKey, options);
-    (0, appRes_1.default)(res, 200, '', 'Login success!', { tocken });
-});
+    try {
+        const user = await user_model_1.default.findOne({ email });
+        const isMatch = await bcryptjs_1.default.compare(password, user.password);
+        if (!isMatch)
+            return next((0, appErr_1.default)('Invalid Credentials', 401));
+        const secretKey = process.env.JWT_SECRET;
+        if (!secretKey) {
+            return res.status(500).json({ error: 'Secret key is not defined' });
+        }
+        const options = {
+            expiresIn: '1h',
+            algorithm: 'HS256',
+        };
+        const tocken = jsonwebtoken_1.default.sign({ id: user._id }, secretKey, options);
+        (0, appRes_1.default)(res, 200, '', 'Login success!', { tocken });
+    }
+    catch (e) {
+        return next((0, appErr_1.default)(e.message, 500));
+    }
+};
+exports.signin = signin;

@@ -15,7 +15,7 @@
     "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations */
   },
   "include": [ 
-    "src/**/*.ts"
+    "src/**/*.ts", "types.d.ts"
   ],
   "exclude": [ 
     "node_modules"

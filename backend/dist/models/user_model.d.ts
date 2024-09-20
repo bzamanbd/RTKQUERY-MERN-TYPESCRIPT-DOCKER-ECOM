@@ -35,6 +35,7 @@ export interface IUser extends Document {
     answer: string | undefined;
     role: "client" | "admin" | "vendor" | "driver";
     isBanned: boolean;
+    orders: [];
 }
 declare const User: mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser> & IUser & {
     _id: mongoose.Types.ObjectId;
