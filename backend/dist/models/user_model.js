@@ -16,7 +16,7 @@ const userSchema = new Schema({
         unique: true,
     },
     password: {
-        type: Schema.Types.Mixed,
+        type: String,
         required: [true, "password is required"],
     },
     phone: {
@@ -35,13 +35,17 @@ const userSchema = new Schema({
         required: [true, "Question to reset password is required"],
     },
     answer: {
-        type: Schema.Types.Mixed,
+        type: String,
         required: [true, "Answer to reset password is required"],
     },
     role: {
         type: String,
         default: "client",
         enum: ["client", "admin", "vendor", "driver"],
+    },
+    isBanned: {
+        type: Boolean,
+        default: false
     },
     orders: [{
             type: Schema.Types.ObjectId,

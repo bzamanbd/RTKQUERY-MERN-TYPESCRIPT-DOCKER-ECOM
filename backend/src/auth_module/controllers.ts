@@ -20,6 +20,8 @@ export const signup = async(req:Request, res:Response,next:NextFunction)=>{
     
     if(!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer) return next(appErr('name,email,password,phone,question and answer are required',400)) 
     
+    if(payload.password.length<6)return next(appErr('Password must be at lest 6 characters',400))
+    
     if(!isValidEmail(payload.email))return next(appErr('Invalid email format',400))
     
     try { 
@@ -83,7 +85,7 @@ export const signin = async(req:Request,res:Response, next:NextFunction)=>{
     try {
         const user = await userModel.findOne({email})
 
-        const isMatch = await bcrypt.compare(password, user&& user.password)
+        const isMatch = await bcrypt.compare(password, user!.password!)
         
         if(!isMatch)return next(appErr('Invalid Credentials',401)) 
         

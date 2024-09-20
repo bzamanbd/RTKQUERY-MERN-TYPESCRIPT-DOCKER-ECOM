@@ -1,5 +1,21 @@
 import mongoose from 'mongoose';
+
 const { Schema } = mongoose;
+
+export interface IUser extends Document{ 
+    name: string,
+    email:string,
+    password:string | undefined,
+    phone:string,
+    address:string,
+    avatar:string,
+    question:string,
+    answer:string | undefined,
+    role:"client" | "admin" | "vendor" | "driver",
+    isBanned:boolean,
+
+}
+
 
 const userSchema = new Schema(
     {
@@ -15,7 +31,7 @@ const userSchema = new Schema(
         },
 
         password:{ 
-            type: Schema.Types.Mixed,
+            type: String,
             required: [true, "password is required"],
         },
 
@@ -39,7 +55,7 @@ const userSchema = new Schema(
         },
         
         answer: {
-            type: Schema.Types.Mixed,
+            type: String,
             required: [true, "Answer to reset password is required"],
         },
 
@@ -48,7 +64,10 @@ const userSchema = new Schema(
             default: "client",
             enum: ["client", "admin", "vendor", "driver"],
         },
-
+        isBanned:{ 
+            type: Boolean, 
+            default: false
+        },
         orders: [{
             type: Schema.Types.ObjectId,
             ref: 'Order'
@@ -57,5 +76,5 @@ const userSchema = new Schema(
     },
     { timestamps:true }
 );
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model<IUser>('User', userSchema);
 export default User

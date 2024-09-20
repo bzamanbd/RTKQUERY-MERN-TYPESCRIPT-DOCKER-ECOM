@@ -24,95 +24,19 @@
 /// <reference types="mongoose/types/inferschematype" />
 /// <reference types="mongoose/types/inferrawdoctype" />
 import mongoose from 'mongoose';
-declare const User: mongoose.Model<{
-    createdAt: NativeDate;
-    updatedAt: NativeDate;
-} & {
+export interface IUser extends Document {
     name: string;
     email: string;
-    password: any;
+    password: string | undefined;
     phone: string;
+    address: string;
     avatar: string;
     question: string;
-    answer: any;
+    answer: string | undefined;
     role: "client" | "admin" | "vendor" | "driver";
-    orders: mongoose.Types.ObjectId[];
-    address?: string | null | undefined;
-}, {}, {}, {}, mongoose.Document<unknown, {}, {
-    createdAt: NativeDate;
-    updatedAt: NativeDate;
-} & {
-    name: string;
-    email: string;
-    password: any;
-    phone: string;
-    avatar: string;
-    question: string;
-    answer: any;
-    role: "client" | "admin" | "vendor" | "driver";
-    orders: mongoose.Types.ObjectId[];
-    address?: string | null | undefined;
-}> & {
-    createdAt: NativeDate;
-    updatedAt: NativeDate;
-} & {
-    name: string;
-    email: string;
-    password: any;
-    phone: string;
-    avatar: string;
-    question: string;
-    answer: any;
-    role: "client" | "admin" | "vendor" | "driver";
-    orders: mongoose.Types.ObjectId[];
-    address?: string | null | undefined;
-} & {
+    isBanned: boolean;
+}
+declare const User: mongoose.Model<IUser, {}, {}, {}, mongoose.Document<unknown, {}, IUser> & IUser & {
     _id: mongoose.Types.ObjectId;
-}, mongoose.Schema<any, mongoose.Model<any, any, any, any, any, any>, {}, {}, {}, {}, {
-    timestamps: true;
-}, {
-    createdAt: NativeDate;
-    updatedAt: NativeDate;
-} & {
-    name: string;
-    email: string;
-    password: any;
-    phone: string;
-    avatar: string;
-    question: string;
-    answer: any;
-    role: "client" | "admin" | "vendor" | "driver";
-    orders: mongoose.Types.ObjectId[];
-    address?: string | null | undefined;
-}, mongoose.Document<unknown, {}, mongoose.FlatRecord<{
-    createdAt: NativeDate;
-    updatedAt: NativeDate;
-} & {
-    name: string;
-    email: string;
-    password: any;
-    phone: string;
-    avatar: string;
-    question: string;
-    answer: any;
-    role: "client" | "admin" | "vendor" | "driver";
-    orders: mongoose.Types.ObjectId[];
-    address?: string | null | undefined;
-}>> & mongoose.FlatRecord<{
-    createdAt: NativeDate;
-    updatedAt: NativeDate;
-} & {
-    name: string;
-    email: string;
-    password: any;
-    phone: string;
-    avatar: string;
-    question: string;
-    answer: any;
-    role: "client" | "admin" | "vendor" | "driver";
-    orders: mongoose.Types.ObjectId[];
-    address?: string | null | undefined;
-}> & {
-    _id: mongoose.Types.ObjectId;
-}>>;
+}, any>;
 export default User;

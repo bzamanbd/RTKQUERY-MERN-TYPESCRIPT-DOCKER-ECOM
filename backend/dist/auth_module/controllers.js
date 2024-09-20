@@ -19,6 +19,8 @@ const signup = async (req, res, next) => {
     const payload = req.body;
     if (!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer)
         return next((0, appErr_1.default)('name,email,password,phone,question and answer are required', 400));
+    if (payload.password.length < 6)
+        return next((0, appErr_1.default)('Password must be at lest 6 characters', 400));
     if (!(0, isValidEmail_1.default)(payload.email))
         return next((0, appErr_1.default)('Invalid email format', 400));
     try {
@@ -72,7 +74,7 @@ const signin = async (req, res, next) => {
         return next((0, appErr_1.default)('Invalid email format', 400));
     try {
         const user = await user_model_1.default.findOne({ email });
-        const isMatch = await bcryptjs_1.default.compare(password, user && user.password);
+        const isMatch = await bcryptjs_1.default.compare(password, user.password);
         if (!isMatch)
             return next((0, appErr_1.default)('Invalid Credentials', 401));
         const secretKey = process.env.JWT_SECRET;
