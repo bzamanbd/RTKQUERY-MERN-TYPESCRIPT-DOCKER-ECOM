@@ -6,6 +6,7 @@ interface HttpError extends Error {
   }
 
 const globalErrorHandler =(err:HttpError, req:Request, res:Response, next:NextFunction)=>{
+    console.error(err.message);
     const status = err.status || "False"
     const message = err.message
     const stack = err.stack

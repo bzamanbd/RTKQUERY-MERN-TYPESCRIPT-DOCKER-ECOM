@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteOwnAccount = exports.updatePassword = exports.resetPassword = exports.fetchQuestion = exports.updateProfile = exports.fetchProfile = exports.fetchUsers = void 0;
+exports.deleteOwnAccount = exports.updatePassword = exports.resetPassword = exports.fetchQuestion = exports.updateProfile = exports.fetchProfile = exports.deleteUser = exports.updateUser = exports.fetchUser = exports.fetchUsers = void 0;
 const appErr_1 = __importDefault(require("../utils/appErr"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 require("dotenv/config");
@@ -41,6 +41,37 @@ exports.fetchUsers = (0, tryCatch_1.default)(async (req, res, next) => {
             nextPage: (page + 1) <= Math.ceil(count / limit) ? page + 1 : null,
         }
     });
+});
+exports.fetchUser = (0, tryCatch_1.default)(async (req, res, next) => {
+    const id = req.params.id;
+    if (!id)
+        return next((0, appErr_1.default)('id is required', 400));
+    const user = await user_model_1.default.findById({ _id: id });
+    if (!user)
+        return next((0, appErr_1.default)('User not found!', 404));
+    user.password = undefined;
+    (0, appRes_1.default)(res, 200, '', `${user.name}'s profile`, { user });
+});
+exports.updateUser = (0, tryCatch_1.default)(async (req, res, next) => {
+    const _id = req.params.id;
+    const payload = req.body;
+    const existUser = await user_model_1.default.findById(_id);
+    if (!existUser)
+        return next((0, appErr_1.default)('user not found', 404));
+    const user = await user_model_1.default.findByIdAndUpdate(_id, { $set: payload }, { new: true, runValidators: true });
+    if (!user)
+        return next((0, appErr_1.default)('user did not updated, something went wrong!', 500));
+    (0, appRes_1.default)(res, 200, '', 'User is updated successfully!', { user });
+});
+exports.deleteUser = (0, tryCatch_1.default)(async (req, res, next) => {
+    const id = req.params.id;
+    if (!id)
+        return next((0, appErr_1.default)('id is required', 400));
+    const user = await user_model_1.default.findById({ _id: id });
+    if (!user)
+        return next((0, appErr_1.default)('User not found!', 404));
+    await user_model_1.default.findByIdAndDelete({ _id: id });
+    (0, appRes_1.default)(res, 200, '', 'Account is deleted successfully!', {});
 });
 exports.fetchProfile = (0, tryCatch_1.default)(async (req, res, next) => {
     const _id = req.user?.id;
@@ -122,11 +153,11 @@ exports.resetPassword = (0, tryCatch_1.default)(async (req, res, next) => {
     (0, appRes_1.default)(res, 200, '', 'Password reset success!', { user });
 });
 exports.updatePassword = (0, tryCatch_1.default)(async (req, res, next) => {
-    const _id = req.user?.id;
+    const id = req.user?.id;
     const { oldPassword, newPassword } = req.body;
     if (!oldPassword || !newPassword)
         return next((0, appErr_1.default)('oldPassword and newPassword are required', 400));
-    const user = await user_model_1.default.findById({ _id });
+    const user = await user_model_1.default.findById({ _id: id });
     if (!user)
         return next((0, appErr_1.default)('User not found!', 404));
     const isMatchOldPassword = await bcryptjs_1.default.compare(oldPassword, user.password);
@@ -139,12 +170,12 @@ exports.updatePassword = (0, tryCatch_1.default)(async (req, res, next) => {
     (0, appRes_1.default)(res, 200, '', 'Password update success!', { user });
 });
 exports.deleteOwnAccount = (0, tryCatch_1.default)(async (req, res, next) => {
-    const _id = req.user?.id;
-    if (!_id)
-        return next((0, appErr_1.default)('_id is required', 400));
-    const user = await user_model_1.default.findById({ _id });
+    const id = req.user?.id;
+    if (!id)
+        return next((0, appErr_1.default)('id is required', 400));
+    const user = await user_model_1.default.findById({ _id: id });
     if (!user)
         return next((0, appErr_1.default)('User not found!', 404));
-    await user_model_1.default.findByIdAndDelete({ _id });
+    await user_model_1.default.findByIdAndDelete({ _id: id });
     (0, appRes_1.default)(res, 200, '', 'Your account is deleted successfully!', {});
 });

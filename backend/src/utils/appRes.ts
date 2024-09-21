@@ -1,4 +1,4 @@
-import {Response } from 'express';
+import {Response} from 'express';
 
 const appRes = (res:Response, status:number, success:string, message:string, data: {} | null = null) => {
     res.status(status).json({
@@ -7,5 +7,4 @@ const appRes = (res:Response, status:number, success:string, message:string, dat
       data: data
     });
   };
-  
 export default appRes;  

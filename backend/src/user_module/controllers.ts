@@ -2,7 +2,7 @@ import appErr from "../utils/appErr"
 import bcrypt from "bcryptjs"
 import 'dotenv/config'
 import appRes from "../utils/appRes"
-import userModel from '../models/user_model'
+import User from '../models/user_model'
 import path from "path"
 import { processImage, deleteFile } from '../utils/imageProcessor';
 import { oldImageRemover } from "../utils/oldImageRemover" 
@@ -23,8 +23,8 @@ export const fetchUsers = TryCatch(
             ]
         }
         const option = {password:0}
-        const users = await userModel.find(filter, option).limit(limit).skip((page-1)*5)
-        const count = await userModel.find(filter).countDocuments()
+        const users = await User.find(filter, option).limit(limit).skip((page-1)*5)
+        const count = await User.find(filter).countDocuments()
         if(users.length <1)return appRes(res,200,'',`${users.length} user found!`,{users})
         // users.forEach(user =>user.password = undefined)    
         appRes(res,200,'',`${users.length} users found!`,{
@@ -41,11 +41,49 @@ export const fetchUsers = TryCatch(
     }
 )
 
+export const fetchUser = TryCatch( 
+    async(req:Request, res:Response, next:NextFunction)=>{ 
+        const id = req.params.id
+        if(!id) return next(appErr('id is required',400))
+        const user = await User.findById({_id: id})
+        if (!user) return next(appErr('User not found!',404))
+        user.password = undefined
+        appRes(res,200,'',`${user.name}'s profile`,{user})
+    }
+)
+
+export const updateUser = TryCatch( 
+    async(req:Request, res:Response, next:NextFunction)=>{ 
+        const _id = req.params.id 
+        const payload = req.body
+        const existUser = await User.findById(_id) 
+        if(!existUser)return next(appErr('user not found',404)) 
+        const user = await User.findByIdAndUpdate(
+            _id,
+            {$set:payload},
+            {new:true, runValidators:true}
+        ) 
+        if(!user)return next(appErr('user did not updated, something went wrong!',500))
+        appRes(res,200,'','User is updated successfully!',{user})
+    }
+)
+
+export const deleteUser = TryCatch( 
+    async(req:Request, res:Response, next:NextFunction)=>{ 
+        const id = req.params.id
+        if(!id)return next(appErr('id is required',400)) 
+        const user = await User.findById({_id:id})
+        if(!user)return next(appErr('User not found!',404))
+        await User.findByIdAndDelete({_id:id})
+        appRes(res,200,'','Account is deleted successfully!',{})
+    }
+)
+
 export const fetchProfile = TryCatch( 
     async(req:Request, res:Response, next:NextFunction)=>{ 
         const _id = req.user?.id
         if(!_id) return next(appErr('_id is required',400))
-        const user = await userModel.findById(_id)
+        const user = await User.findById(_id)
         if (!user) return next(appErr('User not found!',404))
         user.password = undefined
         appRes(res,200,'',`${user.name}'s profile`,{user})
@@ -62,7 +100,7 @@ export const updateProfile = async(req:Request, res:Response, next:NextFunction)
         // Validate the request body (additional validation can be added as needed)
         if (!payload) return next(appErr('No data provided for update',400))
         
-        const existUser = await userModel.findById(_id)
+        const existUser = await User.findById(_id)
         if(!existUser)return next(appErr('User not found!',404))
 
         // No one can change the predefined admin emails
@@ -84,7 +122,7 @@ export const updateProfile = async(req:Request, res:Response, next:NextFunction)
                  
         }
 
-        const user = await userModel.findByIdAndUpdate(
+        const user = await User.findByIdAndUpdate(
             _id,
             {$set:payload},
             {new:true, runValidators:true}
@@ -106,7 +144,7 @@ export const fetchQuestion = TryCatch(
     async(req:Request, res:Response, next:NextFunction)=>{ 
         const {email} = req.body
         if(!email)return next(appErr('email is required',400))
-        const user = await userModel.findOne({email})
+        const user = await User.findOne({email})
         if (!user) return next(appErr('User not found!',404))
         const question = user.question  
         appRes(res,200,'',`${user.name}'s question`,{question})
@@ -117,7 +155,7 @@ export const resetPassword = TryCatch(
     async(req:Request, res:Response, next:NextFunction)=>{ 
         const {email,newPassword,answer} = req.body
         if(!email || !newPassword || !answer) return next(appErr('email,newPassword and answer are required',400)) 
-        const user = await userModel.findOne({email})
+        const user = await User.findOne({email})
         if(!user)return next(appErr('User not found!',404)) 
         const isMatchAnswer = await bcrypt.compare(answer, user.answer!);
         if(!isMatchAnswer) return next(appErr('Invalid answer',400))
@@ -133,10 +171,10 @@ export const resetPassword = TryCatch(
 
 export const updatePassword = TryCatch( 
     async(req:Request, res:Response, next:NextFunction)=>{ 
-        const _id = req.user?.id
+        const id = req.user?.id
         const {oldPassword,newPassword} = req.body 
         if(!oldPassword || !newPassword) return next(appErr('oldPassword and newPassword are required',400)) 
-        const user = await userModel.findById({_id})
+        const user = await User.findById({_id:id})
         if(!user)return next(appErr('User not found!',404)) 
         const isMatchOldPassword = await bcrypt.compare(oldPassword, user.password!);
         if(!isMatchOldPassword) return next(appErr('Invalid old password',400))
@@ -151,11 +189,11 @@ export const updatePassword = TryCatch(
 
 export const deleteOwnAccount = TryCatch( 
     async(req:Request, res:Response, next:NextFunction)=>{ 
-        const _id = req.user?.id
-        if(!_id)return next(appErr('_id is required',400)) 
-        const user = await userModel.findById({_id})
+        const id = req.user?.id
+        if(!id)return next(appErr('id is required',400)) 
+        const user = await User.findById({_id:id})
         if(!user)return next(appErr('User not found!',404))
-        await userModel.findByIdAndDelete({_id})
+        await User.findByIdAndDelete({_id:id})
         appRes(res,200,'','Your account is deleted successfully!',{})
     }
 )

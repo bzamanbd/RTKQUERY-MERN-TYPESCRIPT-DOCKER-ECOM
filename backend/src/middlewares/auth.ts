@@ -1,9 +1,8 @@
-import userModel,{IUser} from '../models/user_model'
+import User,{IUser} from '../models/user_model'
 import "dotenv/config"
 import jwt,{JwtPayload} from "jsonwebtoken"
 import appErr from "../utils/appErr";
 import { Request, Response, NextFunction } from 'express';
-
 
 export const isLoggedIn = async (req:Request, res:Response, next:NextFunction) => {
 
@@ -18,13 +17,14 @@ export const isLoggedIn = async (req:Request, res:Response, next:NextFunction) =
   try {
   
     const payload = jwt.verify(token, process.env.JWT_SECRET!);
-    const user = await userModel.findById({_id:(payload as JwtPayload).id}) as IUser
+    const user = await User.findById({_id:(payload as JwtPayload).id}) as IUser
     
     // console.log(user);
     
     if (!user) return next(appErr('Unauthorized',401))
 
     req.user = user
+    
 
     next();
 
