@@ -10,30 +10,43 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const appRes_1 = __importDefault(require("../utils/appRes"));
-const user_model_1 = __importDefault(require("../models/user_model"));
+const user_1 = __importDefault(require("../models/user"));
 const adminEmails_1 = __importDefault(require("../utils/adminEmails"));
 const isValidEmail_1 = __importDefault(require("../utils/isValidEmail"));
 const path_1 = __importDefault(require("path"));
 const imageProcessor_1 = require("../utils/imageProcessor");
 const tryCatch_1 = __importDefault(require("../middlewares/tryCatch"));
+const fs_1 = require("fs");
 const signup = async (req, res, next) => {
     const payload = req.body;
-    if (!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer)
+    const avatar = req.file;
+    if (!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer) {
+        if (avatar)
+            (0, fs_1.rm)(avatar.path, () => { console.log('avatar path deleted'); });
         return next((0, appErr_1.default)('name,email,password,phone,question and answer are required', 400));
-    if (payload.password.length < 6)
+    }
+    if (payload.password.length < 6) {
+        if (avatar)
+            (0, fs_1.rm)(avatar.path, () => { console.log('avatar path deleted'); });
         return next((0, appErr_1.default)('Password must be at lest 6 characters', 400));
-    if (!(0, isValidEmail_1.default)(payload.email))
+    }
+    if (!(0, isValidEmail_1.default)(payload.email)) {
+        if (avatar)
+            (0, fs_1.rm)(avatar.path, () => { console.log('avatar path deleted'); });
         return next((0, appErr_1.default)('Invalid email format', 400));
+    }
     try {
-        const emailExists = await user_model_1.default.findOne({ email: payload.email });
+        const emailExists = await user_1.default.findOne({ email: payload.email });
         if (emailExists) {
-            if (req.file) {
-                (0, imageProcessor_1.deleteFile)(path_1.default.join('./temp', req.file.filename));
-            }
+            if (avatar)
+                (0, fs_1.rm)(avatar.path, () => { console.log('avatar path deleted'); });
             return next((0, appErr_1.default)(`${payload.email} email is exists. Try another`, 401));
         }
-        if (payload.role === 'admin' && !adminEmails_1.default.includes(payload.email))
+        if (payload.role === 'admin' && !adminEmails_1.default.includes(payload.email)) {
+            if (avatar)
+                (0, fs_1.rm)(avatar.path, () => { console.log('avatar path deleted'); });
             return next((0, appErr_1.default)('You are not authorized to create an admin account', 403));
+        }
         const hashedPass = await bcryptjs_1.default.hash(payload.password, 10);
         const hashedAnswer = await bcryptjs_1.default.hash(payload.answer, 10);
         const email = payload.email;
@@ -41,7 +54,7 @@ const signup = async (req, res, next) => {
         payload.password = hashedPass;
         payload.answer = hashedAnswer;
         payload.role = getRole(email);
-        const user = new user_model_1.default(payload);
+        const user = new user_1.default(payload);
         await user.save();
         if (req.file) {
             const filename = await (0, imageProcessor_1.processImage)({
@@ -73,7 +86,7 @@ exports.signin = (0, tryCatch_1.default)(async (req, res, next) => {
         return next((0, appErr_1.default)('email and password are required', 400));
     if (!(0, isValidEmail_1.default)(email))
         return next((0, appErr_1.default)('Invalid email format', 400));
-    const user = await user_model_1.default.findOne({ email });
+    const user = await user_1.default.findOne({ email });
     const isMatch = await bcryptjs_1.default.compare(password, user.password);
     if (!isMatch)
         return next((0, appErr_1.default)('Invalid Credentials', 401));

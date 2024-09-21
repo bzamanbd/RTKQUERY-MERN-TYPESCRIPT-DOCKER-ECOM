@@ -5,33 +5,45 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 dotenv.config()
 import appRes from "../utils/appRes"
-import userModel from '../models/user_model'
+import userModel from '../models/user'
 import adminEmails from "../utils/adminEmails"
 import isValidEmail from '../utils/isValidEmail';
 import path from 'path';
 import { deleteFile, processImage } from "../utils/imageProcessor"
 import TryCatch from "../middlewares/tryCatch"
+import { rm } from "fs"
 
 
 
 
 export const signup = async(req:Request, res:Response,next:NextFunction)=>{  
         const payload = req.body
-        if(!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer) return next(appErr('name,email,password,phone,question and answer are required',400)) 
+        const avatar = req.file
+        if(!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer){ 
+            if(avatar)rm(avatar.path,()=>{console.log('avatar path deleted')})
+            return next(appErr('name,email,password,phone,question and answer are required',400))
+        }
 
-        if(payload.password.length<6)return next(appErr('Password must be at lest 6 characters',400))
+        if(payload.password.length<6){
+            if(avatar)rm(avatar.path,()=>{console.log('avatar path deleted')}) 
+            return next(appErr('Password must be at lest 6 characters',400))
+        }
 
-        if(!isValidEmail(payload.email))return next(appErr('Invalid email format',400))
+        if(!isValidEmail(payload.email)){ 
+            if(avatar)rm(avatar.path,()=>{console.log('avatar path deleted')}) 
+            return next(appErr('Invalid email format',400))
+        }
 
         try {  
             const emailExists = await userModel.findOne({email: payload.email})
             if (emailExists){
-                if(req.file){ 
-                    deleteFile(path.join('./temp', req.file.filename))
-                }
+                if(avatar)rm(avatar.path,()=>{console.log('avatar path deleted')}) 
                 return next(appErr(`${payload.email} email is exists. Try another`,401))
             }
-            if(payload.role === 'admin' && !adminEmails.includes(payload.email))return next(appErr('You are not authorized to create an admin account',403))
+            if(payload.role === 'admin' && !adminEmails.includes(payload.email)){ 
+                if(avatar)rm(avatar.path,()=>{console.log('avatar path deleted')})
+                return next(appErr('You are not authorized to create an admin account',403))
+            }
             const hashedPass = await bcrypt.hash(payload.password, 10) 
             const hashedAnswer = await bcrypt.hash(payload.answer, 10)
             const email = payload.email;

@@ -10,13 +10,11 @@ dotenv_1.default.config();
 const connectDB_1 = __importDefault(require("./config/connectDB"));
 const globalErrorHandler_1 = __importDefault(require("./middlewares/globalErrorHandler"));
 const index_1 = __importDefault(require("./routes/index"));
-const morgan_1 = __importDefault(require("morgan"));
-(0, connectDB_1.default)();
+const notFound404_1 = __importDefault(require("./middlewares/notFound404"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 9000;
-app.use((0, morgan_1.default)('tiny')),
-    app.use(express_1.default.json(), index_1.default);
+(0, connectDB_1.default)();
+app.use(express_1.default.json(), index_1.default);
 app.get('/', (req, res) => { (0, appRes_1.default)(res, 200, '', 'server health is fine', {}); });
-app.use('*', (req, res) => { (0, appRes_1.default)(res, 404, 'False', `${req.originalUrl} <== Route not found`, {}); });
-app.use(globalErrorHandler_1.default);
+app.use(notFound404_1.default, globalErrorHandler_1.default);
 app.listen(port, () => console.log(`server runs on http://localhost:${port}`));

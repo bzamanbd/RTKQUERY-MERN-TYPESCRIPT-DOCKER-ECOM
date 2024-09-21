@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAdmin = exports.isLoggedIn = void 0;
-const user_model_1 = __importDefault(require("../models/user_model"));
+const user_1 = __importDefault(require("../models/user"));
 require("dotenv/config");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const appErr_1 = __importDefault(require("../utils/appErr"));
@@ -17,7 +17,7 @@ const isLoggedIn = async (req, res, next) => {
         return next((0, appErr_1.default)('Unauthorized', 401));
     try {
         const payload = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        const user = await user_model_1.default.findById({ _id: payload.id });
+        const user = await user_1.default.findById({ _id: payload.id });
         // console.log(user);
         if (!user)
             return next((0, appErr_1.default)('Unauthorized', 401));

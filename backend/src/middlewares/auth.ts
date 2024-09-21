@@ -1,4 +1,4 @@
-import User,{IUser} from '../models/user_model'
+import User,{IUser} from '../models/user'
 import "dotenv/config"
 import jwt,{JwtPayload} from "jsonwebtoken"
 import appErr from "../utils/appErr";
