@@ -11,12 +11,6 @@ import TryCatch from "../middlewares/tryCatch";
 import deleteTempFiles from "../utils/deleteTempFiles";
 
 
-interface IFile {
-    originalname: string,
-    mimetype: string,
-    buffer: Buffer
-}
-
 export const createProduct = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{
         const payload = req.body;
@@ -91,103 +85,84 @@ export const fetchProductById = TryCatch(
     }
 )
 
-export const editProduct = async(req:Request, res:Response,next:NextFunction)=>{ 
-    const _id = req.params.id
-    const files = req.files as unknown as { photos: IFile[]; videos: IFile[] };
-    const photos = files.photos;
-    const videos = files.videos;
-
-    if (!mongoose.Types.ObjectId.isValid(_id)){ 
-        //product update fails, so,delete uploaded files from temp
-        // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
-        return next(appErr('Invalid ID format',400))
-    } 
-
-    if(!_id){
-        //product update fails, so,delete uploaded files from temp
-        // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
-        return next(appErr('id is required',400))
-    }
-        
-    try {
-        const product = await Product.findById(_id);
-        if (!product) {
-            //product update fails, so,delete uploaded files from temp
-            // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
-            return next(appErr('product not found',404))
-        }
-
-        // Handle photos and videos to remove
-        let photosToRemove = req.body.photosToRemove ? JSON.parse(req.body.photosToRemove) : [];
-        let videosToRemove = req.body.videosToRemove ? JSON.parse(req.body.videosToRemove) : [];
-
-        // Remove old photos
-        photosToRemove.forEach((photoUrl:any) => {
-            deleteFile(photoUrl); // Utility function to delete file from server
-            product!.photos = product!.photos.filter((img:any) => img !== photoUrl);
-        });
-
-        // Remove old videos
-        videosToRemove.forEach((videoUrl:any) => {
-            deleteFile(videoUrl); // Utility function to delete file from server
-            product!.videos = product!.videos.filter((vid:any) => vid !== videoUrl);
-        });
-
-        // Add new photos
-        if (photos) {
-            // Process and move photos
-            const processedPhotos = await mediaProcessor.processAndMoveMedia({files:photos,destinationDir:'photos',imgSize:50,imgQuality:80});
-            const productPhotos:[] = []
-            pathTrimmer({items:processedPhotos,newItems:productPhotos})
-            product!.photos.push(...productPhotos);
+export const editProduct = TryCatch( 
+    async(req:Request, res:Response,next:NextFunction)=>{ 
+        const _id = req.params.id;
+        let photos: Express.Multer.File[] = [];
+        let videos: Express.Multer.File[] = [];
+        if (Array.isArray(req.files)){
+            // If files are not grouped by field name, process as a general array
+            photos = req.files;
+        } else if (req.files && typeof req.files === 'object'){
+            // If files are grouped by field names (e.g., photos, videos)
+            photos = req.files['photos'] || [];  // Handle photos
+            videos = req.files['videos'] || [];  // Handle videos
+        };
+        if (!mongoose.Types.ObjectId.isValid(_id)){
+            deleteTempFiles([...photos, ...videos]);
+            return next(appErr('Invalid ID format',400));
+        };
+        if(!_id){
+            deleteTempFiles([...photos, ...videos]);
+            return next(appErr('id is required',400));
+        }; 
+        try {
+            const product = await Product.findById(_id);
+            if (!product){
+                deleteTempFiles([...photos, ...videos]);
+                return next(appErr('product not found',404));
+            };
+            // Handle photos and videos to remove
+            let photosToRemove = req.body.photosToRemove ? JSON.parse(req.body.photosToRemove) : [];
+            let videosToRemove = req.body.videosToRemove ? JSON.parse(req.body.videosToRemove) : [];
+            // Remove old photos
+            photosToRemove.forEach((photoUrl:any) => {
+                deleteFile(photoUrl); // Utility function to delete file from server
+                product!.photos = product!.photos.filter((img:any) => img !== photoUrl);
+            });
+            // Remove old videos
+            videosToRemove.forEach((videoUrl:any) => {
+                deleteFile(videoUrl); // Utility function to delete file from server
+                product!.videos = product!.videos.filter((vid:any) => vid !== videoUrl);
+            });
+            // Add new photos
+            if (photos){
+                // Process and move photos
+                const processedPhotos = await mediaProcessor.processAndMoveMedia({files:photos,destinationDir:'photos',imgSize:50,imgQuality:80});
+                const productPhotos:[] = []
+                pathTrimmer({items:processedPhotos,newItems:productPhotos})
+                product!.photos.push(...productPhotos);
+                await product!.save();
+            };
+            // Add new videos
+            if (videos){ 
+                // Process and move videos
+                const processedVideos = await mediaProcessor.processAndMoveMedia({files:videos, destinationDir:'videos',isImage:false,videoSize:360});
+                const productVideos:[] = []
+                pathTrimmer({items:processedVideos,newItems:productVideos}) 
+                product!.videos.push(...productVideos);
+                await product!.save();
+            };
+            // Update other fields if necessary
+            if (req.body.name) product!.name = req.body.name;
+            if (req.body.description) product!.description = req.body.description;
+            if (req.body.price) product!.price = req.body.price;
+            if (req.body.category) product!.category = req.body.category;
+            if (req.body.stock) product!.stock = req.body.stock;
+            if (req.body.code) product!.code = req.body.code;
+            if (req.body.isAvailable) product!.isAvailable = req.body.isAvailable;
+            // Save the updated product
             await product!.save();
+            // Clean up temporary files
+            deleteTempFiles([...photos, ...videos]);
+            appRes(res,200,'',`${product!.name} is updated!`,{product});
+        } catch (e:any) {
+            deleteTempFiles([...photos, ...videos]);
+            return next(appErr(e.message,500))
+    
         }
-       
-        // Add new videos
-        if (videos) { 
-            // Process and move videos
-            const processedVideos = await mediaProcessor.processAndMoveMedia({files:videos, destinationDir:'videos',isImage:false,videoSize:360});
-            const productVideos:[] = []
-            pathTrimmer({items:processedVideos,newItems:productVideos}) 
-            product!.videos.push(...productVideos);
-            await product!.save();
-        }
-
-        // Update other fields if necessary
-        if (req.body.name) product!.name = req.body.name;
-        if (req.body.description) product!.description = req.body.description;
-        if (req.body.price) product!.price = req.body.price;
-        if (req.body.category) product!.category = req.body.category;
-        if (req.body.stock) product!.stock = req.body.stock;
-        if (req.body.code) product!.code = req.body.code;
-        if (req.body.isAvailable) product!.isAvailable = req.body.isAvailable;
-
-        // Save the updated food item
-        await product!.save();
-
-        // Clean up temporary files
-        if(photos){
-            // await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
-        }
-
-        if(Array.isArray(req.files?['videos']:[])){
-            // await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
-        }
-
-        appRes(res,200,'',`${product!.name} is updated!`,{product})
-    } catch (e:any) {
-
-        // Clean up temporary files
-        if(Array.isArray(req.files?['photos']:[])){
-            // await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
-        }
-        if(Array.isArray(req.files?['videos']:[])){
-            // await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
-        }
-        return next(appErr(e.message,500))
-
     }
-}
+)
 
 export const deleteProduct = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{ 
@@ -201,12 +176,9 @@ export const deleteProduct = TryCatch(
     }
 )
 
-export const getCategories = async (req: Request, res: Response) => {
-    try {
-      // Fetch distinct 'category' values without any filters
-      const categories = await Product.distinct('category');
-      res.status(200).json(categories);
-    } catch (error) {
-      res.status(500).json({ error: 'Error fetching categories' });
+export const getCategories = TryCatch( 
+    async(req:Request,res:Response,next:NextFunction)=>{ 
+        const categories = await Product.distinct('category'); 
+        appRes(res,200,'True','',{categories});
     }
-  };
+)

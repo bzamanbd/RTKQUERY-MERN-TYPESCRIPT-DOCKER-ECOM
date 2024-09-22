@@ -84,28 +84,37 @@ exports.fetchProductById = (0, tryCatch_1.default)(async (req, res, next) => {
         return next((0, appErr_1.default)('Product not found!', 404));
     (0, appRes_1.default)(res, 200, '', `${product.name} found!`, { product });
 });
-const editProduct = async (req, res, next) => {
+exports.editProduct = (0, tryCatch_1.default)(async (req, res, next) => {
     const _id = req.params.id;
-    const files = req.files;
-    const photos = files.photos;
-    const videos = files.videos;
+    let photos = [];
+    let videos = [];
+    if (Array.isArray(req.files)) {
+        // If files are not grouped by field name, process as a general array
+        photos = req.files;
+    }
+    else if (req.files && typeof req.files === 'object') {
+        // If files are grouped by field names (e.g., photos, videos)
+        photos = req.files['photos'] || []; // Handle photos
+        videos = req.files['videos'] || []; // Handle videos
+    }
+    ;
     if (!mongoose_1.default.Types.ObjectId.isValid(_id)) {
-        //product update fails, so,delete uploaded files from temp
-        // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
+        (0, deleteTempFiles_1.default)([...photos, ...videos]);
         return next((0, appErr_1.default)('Invalid ID format', 400));
     }
+    ;
     if (!_id) {
-        //product update fails, so,delete uploaded files from temp
-        // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
+        (0, deleteTempFiles_1.default)([...photos, ...videos]);
         return next((0, appErr_1.default)('id is required', 400));
     }
+    ;
     try {
         const product = await product_1.default.findById(_id);
         if (!product) {
-            //product update fails, so,delete uploaded files from temp
-            // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
+            (0, deleteTempFiles_1.default)([...photos, ...videos]);
             return next((0, appErr_1.default)('product not found', 404));
         }
+        ;
         // Handle photos and videos to remove
         let photosToRemove = req.body.photosToRemove ? JSON.parse(req.body.photosToRemove) : [];
         let videosToRemove = req.body.videosToRemove ? JSON.parse(req.body.videosToRemove) : [];
@@ -128,6 +137,7 @@ const editProduct = async (req, res, next) => {
             product.photos.push(...productPhotos);
             await product.save();
         }
+        ;
         // Add new videos
         if (videos) {
             // Process and move videos
@@ -137,6 +147,7 @@ const editProduct = async (req, res, next) => {
             product.videos.push(...productVideos);
             await product.save();
         }
+        ;
         // Update other fields if necessary
         if (req.body.name)
             product.name = req.body.name;
@@ -152,29 +163,17 @@ const editProduct = async (req, res, next) => {
             product.code = req.body.code;
         if (req.body.isAvailable)
             product.isAvailable = req.body.isAvailable;
-        // Save the updated food item
+        // Save the updated product
         await product.save();
         // Clean up temporary files
-        if (photos) {
-            // await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
-        }
-        if (Array.isArray(req.files ? ['videos'] : [])) {
-            // await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
-        }
+        (0, deleteTempFiles_1.default)([...photos, ...videos]);
         (0, appRes_1.default)(res, 200, '', `${product.name} is updated!`, { product });
     }
     catch (e) {
-        // Clean up temporary files
-        if (Array.isArray(req.files ? ['photos'] : [])) {
-            // await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
-        }
-        if (Array.isArray(req.files ? ['videos'] : [])) {
-            // await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
-        }
+        (0, deleteTempFiles_1.default)([...photos, ...videos]);
         return next((0, appErr_1.default)(e.message, 500));
     }
-};
-exports.editProduct = editProduct;
+});
 exports.deleteProduct = (0, tryCatch_1.default)(async (req, res, next) => {
     const _id = req.params.id;
     if (!_id)
@@ -187,14 +186,7 @@ exports.deleteProduct = (0, tryCatch_1.default)(async (req, res, next) => {
     await product_1.default.findByIdAndDelete({ _id });
     (0, appRes_1.default)(res, 200, '', `${product.name} is deleted!`, {});
 });
-const getCategories = async (req, res) => {
-    try {
-        // Fetch distinct 'category' values without any filters
-        const categories = await product_1.default.distinct('category');
-        res.status(200).json(categories);
-    }
-    catch (error) {
-        res.status(500).json({ error: 'Error fetching categories' });
-    }
-};
-exports.getCategories = getCategories;
+exports.getCategories = (0, tryCatch_1.default)(async (req, res, next) => {
+    const categories = await product_1.default.distinct('category');
+    (0, appRes_1.default)(res, 200, 'True', '', { categories });
+});
