@@ -57,7 +57,7 @@ export const updateUser = TryCatch(
         const _id = req.params.id 
         const payload = req.body
         const existUser = await User.findById(_id) 
-        if(!existUser)return next(appErr('user not found',404)) 
+        if(!existUser && req.file)return next(appErr('user not found',404));
         const user = await User.findByIdAndUpdate(
             _id,
             {$set:payload},
@@ -90,55 +90,51 @@ export const fetchProfile = TryCatch(
     }
 )
 
-export const updateProfile = async(req:Request, res:Response, next:NextFunction)=>{ 
-    const _id = req.user?.id 
-    const  payload = req.body
-
-    if(!_id) return next(appErr('_id is required',400)) 
-    
-    try {
-        // Validate the request body (additional validation can be added as needed)
-        if (!payload) return next(appErr('No data provided for update',400))
-        
-        const existUser = await User.findById(_id)
-        if(!existUser)return next(appErr('User not found!',404))
-
+export const updateProfile = TryCatch(
+    async(req:Request, res:Response, next:NextFunction)=>{ 
+        const _id = req.user?.id;
+        const payload = req.body;
+        const existUser = await User.findById(_id);
         // No one can change the predefined admin emails
-        if(existUser.role === 'admin' && payload.email) return next(appErr(`You don't have permission to change the admin email`,400))
-
-        if(req.file){ 
-            // Get && delete the old avatar from db
+        if(existUser){
+            if(existUser.role === 'admin' && payload.email){
+                if(req.file){deleteFile(path.join('./temp', req.file.filename))};
+                return next(appErr(`You don't have permission to change the pre-defined admin email`,400))
+            }
+        }
+        if(existUser && req.file){ 
+            // Delete the old avatar from db
             oldImageRemover({existImage:existUser.avatar})
-
             const filename = await processImage({ 
                 inputPath: path.join('./temp', req.file.filename),
                 outputDir: './public/avatars',
                 imgWidth: 100,
                 imgQuality: 80
-            })
+            });
             payload.avatar = path.join('./public/avatars', filename);
             // Clean up temporary file after processing
             deleteFile(path.join('./temp', req.file.filename));
-                 
         }
-
+        try {
         const user = await User.findByIdAndUpdate(
             _id,
             {$set:payload},
             {new:true, runValidators:true}
-        )
-        
-        if(!user)return next(appErr('Profile is not updated',400))
-        appRes(res,200,'','Profile update success!',{user})
-
-    } catch (e:any) {
-        if (req.file) {
-            deleteFile(path.join('./temp', req.file.filename)); // Clean up on error
-        }
-        return next(appErr(e.message,500))
-    } 
-
-}
+        );
+        if(!user && req.file){
+            // Clean up temporary file after processing
+            deleteFile(path.join('./temp', req.file.filename));
+            return next(appErr('Profile is not updated',400))
+        };
+        appRes(res,200,'','Profile update success!',{user});
+        } catch (e:any) {
+            if (req.file) {
+                deleteFile(path.join('./temp', req.file.filename)); // Clean up on error
+            }
+            return next(appErr(e.message,500))
+        } 
+    }
+)
 
 export const fetchQuestion = TryCatch( 
     async(req:Request, res:Response, next:NextFunction)=>{ 

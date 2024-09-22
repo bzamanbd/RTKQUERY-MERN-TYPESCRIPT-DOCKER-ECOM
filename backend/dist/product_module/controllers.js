@@ -86,6 +86,7 @@ exports.fetchProductById = (0, tryCatch_1.default)(async (req, res, next) => {
 });
 exports.editProduct = (0, tryCatch_1.default)(async (req, res, next) => {
     const _id = req.params.id;
+    const payload = req.body;
     let photos = [];
     let videos = [];
     if (Array.isArray(req.files)) {
@@ -149,20 +150,20 @@ exports.editProduct = (0, tryCatch_1.default)(async (req, res, next) => {
         }
         ;
         // Update other fields if necessary
-        if (req.body.name)
-            product.name = req.body.name;
-        if (req.body.description)
-            product.description = req.body.description;
-        if (req.body.price)
-            product.price = req.body.price;
-        if (req.body.category)
-            product.category = req.body.category;
-        if (req.body.stock)
-            product.stock = req.body.stock;
-        if (req.body.code)
-            product.code = req.body.code;
-        if (req.body.isAvailable)
-            product.isAvailable = req.body.isAvailable;
+        if (payload.name)
+            product.name = payload.name;
+        if (payload.description)
+            product.description = payload.description;
+        if (payload.price)
+            product.price = payload.price;
+        if (payload.category)
+            product.category = payload.category;
+        if (payload.stock)
+            product.stock = payload.stock;
+        if (payload.code)
+            product.code = payload.code;
+        if (payload.isAvailable)
+            product.isAvailable = payload.isAvailable;
         // Save the updated product
         await product.save();
         // Clean up temporary files

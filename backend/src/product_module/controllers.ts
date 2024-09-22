@@ -88,6 +88,7 @@ export const fetchProductById = TryCatch(
 export const editProduct = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{ 
         const _id = req.params.id;
+        const payload = req.body;
         let photos: Express.Multer.File[] = [];
         let videos: Express.Multer.File[] = [];
         if (Array.isArray(req.files)){
@@ -144,13 +145,13 @@ export const editProduct = TryCatch(
                 await product!.save();
             };
             // Update other fields if necessary
-            if (req.body.name) product!.name = req.body.name;
-            if (req.body.description) product!.description = req.body.description;
-            if (req.body.price) product!.price = req.body.price;
-            if (req.body.category) product!.category = req.body.category;
-            if (req.body.stock) product!.stock = req.body.stock;
-            if (req.body.code) product!.code = req.body.code;
-            if (req.body.isAvailable) product!.isAvailable = req.body.isAvailable;
+            if (payload.name) product!.name = payload.name;
+            if (payload.description) product!.description = payload.description;
+            if (payload.price) product!.price = payload.price;
+            if (payload.category) product!.category = payload.category;
+            if (payload.stock) product!.stock = payload.stock;
+            if (payload.code) product!.code = payload.code;
+            if (payload.isAvailable) product!.isAvailable = payload.isAvailable;
             // Save the updated product
             await product!.save();
             // Clean up temporary files

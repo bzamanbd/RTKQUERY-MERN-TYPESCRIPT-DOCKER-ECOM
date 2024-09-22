@@ -56,7 +56,7 @@ exports.updateUser = (0, tryCatch_1.default)(async (req, res, next) => {
     const _id = req.params.id;
     const payload = req.body;
     const existUser = await user_1.default.findById(_id);
-    if (!existUser)
+    if (!existUser && req.file)
         return next((0, appErr_1.default)('user not found', 404));
     const user = await user_1.default.findByIdAndUpdate(_id, { $set: payload }, { new: true, runValidators: true });
     if (!user)
@@ -83,37 +83,41 @@ exports.fetchProfile = (0, tryCatch_1.default)(async (req, res, next) => {
     user.password = undefined;
     (0, appRes_1.default)(res, 200, '', `${user.name}'s profile`, { user });
 });
-const updateProfile = async (req, res, next) => {
+exports.updateProfile = (0, tryCatch_1.default)(async (req, res, next) => {
     const _id = req.user?.id;
     const payload = req.body;
-    if (!_id)
-        return next((0, appErr_1.default)('_id is required', 400));
+    const existUser = await user_1.default.findById(_id);
+    // No one can change the predefined admin emails
+    if (existUser) {
+        if (existUser.role === 'admin' && payload.email) {
+            if (req.file) {
+                (0, imageProcessor_1.deleteFile)(path_1.default.join('./temp', req.file.filename));
+            }
+            ;
+            return next((0, appErr_1.default)(`You don't have permission to change the pre-defined admin email`, 400));
+        }
+    }
+    if (existUser && req.file) {
+        // Delete the old avatar from db
+        (0, oldImageRemover_1.oldImageRemover)({ existImage: existUser.avatar });
+        const filename = await (0, imageProcessor_1.processImage)({
+            inputPath: path_1.default.join('./temp', req.file.filename),
+            outputDir: './public/avatars',
+            imgWidth: 100,
+            imgQuality: 80
+        });
+        payload.avatar = path_1.default.join('./public/avatars', filename);
+        // Clean up temporary file after processing
+        (0, imageProcessor_1.deleteFile)(path_1.default.join('./temp', req.file.filename));
+    }
     try {
-        // Validate the request body (additional validation can be added as needed)
-        if (!payload)
-            return next((0, appErr_1.default)('No data provided for update', 400));
-        const existUser = await user_1.default.findById(_id);
-        if (!existUser)
-            return next((0, appErr_1.default)('User not found!', 404));
-        // No one can change the predefined admin emails
-        if (existUser.role === 'admin' && payload.email)
-            return next((0, appErr_1.default)(`You don't have permission to change the admin email`, 400));
-        if (req.file) {
-            // Get && delete the old avatar from db
-            (0, oldImageRemover_1.oldImageRemover)({ existImage: existUser.avatar });
-            const filename = await (0, imageProcessor_1.processImage)({
-                inputPath: path_1.default.join('./temp', req.file.filename),
-                outputDir: './public/avatars',
-                imgWidth: 100,
-                imgQuality: 80
-            });
-            payload.avatar = path_1.default.join('./public/avatars', filename);
+        const user = await user_1.default.findByIdAndUpdate(_id, { $set: payload }, { new: true, runValidators: true });
+        if (!user && req.file) {
             // Clean up temporary file after processing
             (0, imageProcessor_1.deleteFile)(path_1.default.join('./temp', req.file.filename));
-        }
-        const user = await user_1.default.findByIdAndUpdate(_id, { $set: payload }, { new: true, runValidators: true });
-        if (!user)
             return next((0, appErr_1.default)('Profile is not updated', 400));
+        }
+        ;
         (0, appRes_1.default)(res, 200, '', 'Profile update success!', { user });
     }
     catch (e) {
@@ -122,8 +126,7 @@ const updateProfile = async (req, res, next) => {
         }
         return next((0, appErr_1.default)(e.message, 500));
     }
-};
-exports.updateProfile = updateProfile;
+});
 exports.fetchQuestion = (0, tryCatch_1.default)(async (req, res, next) => {
     const { email } = req.body;
     if (!email)
