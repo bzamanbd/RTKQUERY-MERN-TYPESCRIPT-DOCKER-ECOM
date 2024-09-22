@@ -60,6 +60,13 @@ const productSchema = new Schema({
         default: ''
     }
 }, { timestamps: true });
+// Pre-save middleware to convert category to lowercase
+productSchema.pre('save', function (next) {
+    if (this.category) {
+        this.category = this.category.toLowerCase();
+    }
+    next();
+});
 productSchema.post('findOneAndDelete', function (doc) {
     if (doc && doc.photos.length > 0) {
         doc.photos.forEach((photo) => { (0, deleteMedia_1.default)(photo); });

@@ -8,6 +8,8 @@ import { pathTrimmer } from '../utils/pathTrimmer';
 import { deleteFile } from "../utils/oldImageRemover";
 import { Request, Response, NextFunction } from "express";
 import TryCatch from "../middlewares/tryCatch";
+import deleteTempFiles from "../utils/deleteTempFiles";
+
 
 interface IFile {
     originalname: string,
@@ -15,65 +17,65 @@ interface IFile {
     buffer: Buffer
 }
 
-export const createProduct = async(req:Request, res:Response,next:NextFunction)=>{ 
-    const payload = req.body;
-    const files = req.files as unknown as { photos: IFile[]; videos: IFile[] };
-    const photos = files.photos;
-    const videos = files.videos;
-
-    if(!payload.name || !payload.price || !payload.category || !payload.stock){ 
-        //product creation fails, so, delete uploaded files from temp
-        if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
-        return next(appErr('Product name, price, category & stock are required',400))
-    }
-
-    const imageFolderName = 'photos'; // Dynamic folder name for photos
-    const videoFolderName = 'videos'; // Dynamic folder name for videos
-
-    try { 
-        const existProduct = await Product.findOne({name:payload.name}) 
-        if(existProduct){ 
-            //product creation fails, so, delete uploaded files from temp
-            if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
-            return next(appErr(`${payload.name} is already exists`,409)) 
+export const createProduct = TryCatch( 
+    async(req:Request, res:Response,next:NextFunction)=>{
+        const payload = req.body;
+        let photos: Express.Multer.File[] = [];
+        let videos: Express.Multer.File[] = [];
+        if (Array.isArray(req.files)){
+            // If files are not grouped by field name, process as a general array
+            photos = req.files;
+        } else if (req.files && typeof req.files === 'object') {
+            // If files are grouped by field names (e.g., photos, videos)
+            photos = req.files['photos'] || [];  // Handle photos
+            videos = req.files['videos'] || [];  // Handle videos
         }
-        
-        const product = new Product(payload)
-        await product.save()
-
+        const imageFolderName = 'photos'; // Dynamic folder name for photos
+        const videoFolderName = 'videos'; // Dynamic folder name for videos
+        if(!payload.name || !payload.price || !payload.category || !payload.stock){
+            deleteTempFiles([...photos, ...videos]);
+            return next(appErr('Product name, price, category & stock are required',400));
+        }
+        const existProduct = await Product.findOne({name:payload.name});
+        if(existProduct){
+            // Clean up temporary files
+            deleteTempFiles([...photos, ...videos]);
+            return next(appErr(`${payload.name} is already exists`,409));
+        }
+        const product = new Product(payload);
+        await product.save();
         if(product){
             // Process and move photos
             const processedPhotos = photos.length > 0 ? await mediaProcessor.processAndMoveMedia({files:photos,destinationDir:imageFolderName,imgSize:50,imgQuality:80}) : [];
-
             // Process and move videos
             const processedVideos = videos.length > 0 ? await mediaProcessor.processAndMoveMedia({files:videos,destinationDir:videoFolderName,isImage:false,videoSize:360}) : [];
-
-            const productPhotos:[] = []
-            const productVideos:[] = []
-
-            pathTrimmer({items:processedPhotos,newItems:productPhotos})
-            pathTrimmer({items:processedVideos,newItems:productVideos}) 
-
+            const productPhotos:[] = [];
+            const productVideos:[] = [];
+            pathTrimmer({items:processedPhotos,newItems:productPhotos});
+            pathTrimmer({items:processedVideos,newItems:productVideos});
             product.photos = productPhotos;
             product.videos = productVideos;
             await product.save();
-        }
+        };
         //product creation is completed then delete uploaded files from temp
-        mediaProcessor.deleteTempFiles([...photos, ...videos]);
+        deleteTempFiles([...photos, ...videos]);
         appRes(res,201,'',`${product.name} is created!`,{product})
-
-    } catch (e:any) {
-        // If product creation fails, so, delete uploaded files from temp
-        mediaProcessor.deleteTempFiles([...photos, ...videos]);
-        return next(appErr(e.message,500))
     }
-}
+)
 
 export const fetchProducts = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{
         const products = await Product.find({})
         if (!products) return next(appErr('Product not found!',404))
-        if (products.length<1) return appRes(res,200,'',`${products.length} food items found!`,{products})
+        if (products.length<1) return appRes(res,200,'False',`${products.length} product found!`,{products})
+        appRes(res,200,'',`${products.length} Products found!`,{products})
+    }
+)
+
+export const fetchLatestProduct = TryCatch( 
+    async(req:Request,res:Response,next:NextFunction)=>{ 
+        const products = await Product.find({}).sort({createdAt:-1}).limit(5);
+        if (products.length<1) return appRes(res,200,'',`${products.length} product found!`,{products})
         appRes(res,200,'',`${products.length} Products found!`,{products})
     }
 )
@@ -91,25 +93,28 @@ export const fetchProductById = TryCatch(
 
 export const editProduct = async(req:Request, res:Response,next:NextFunction)=>{ 
     const _id = req.params.id
+    const files = req.files as unknown as { photos: IFile[]; videos: IFile[] };
+    const photos = files.photos;
+    const videos = files.videos;
 
-    if (!mongoose.Types.ObjectId.isValid(_id)) return next(appErr('Invalid ID format',400)) 
+    if (!mongoose.Types.ObjectId.isValid(_id)){ 
+        //product update fails, so,delete uploaded files from temp
+        // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
+        return next(appErr('Invalid ID format',400))
+    } 
 
-    if(!_id) return next(appErr('id is required',400))
+    if(!_id){
+        //product update fails, so,delete uploaded files from temp
+        // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
+        return next(appErr('id is required',400))
+    }
         
     try {
         const product = await Product.findById(_id);
         if (!product) {
-            appRes(res,404,'false','product not found',{})
-
-            if(req.files){ 
-                // Clean up temporary files
-                if(Array.isArray(req.files?['photos']:[])){
-                    await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
-                }
-                if(Array.isArray(req.files?['videos']:[])){
-                    await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
-                }
-            }
+            //product update fails, so,delete uploaded files from temp
+            // if(req.files)mediaProcessor.deleteTempFiles([...photos, ...videos]);
+            return next(appErr('product not found',404))
         }
 
         // Handle photos and videos to remove
@@ -117,9 +122,9 @@ export const editProduct = async(req:Request, res:Response,next:NextFunction)=>{
         let videosToRemove = req.body.videosToRemove ? JSON.parse(req.body.videosToRemove) : [];
 
         // Remove old photos
-        photosToRemove.forEach((imageUrl:any) => {
-            deleteFile(imageUrl); // Utility function to delete file from server
-            product!.photos = product!.photos.filter((img:any) => img !== imageUrl);
+        photosToRemove.forEach((photoUrl:any) => {
+            deleteFile(photoUrl); // Utility function to delete file from server
+            product!.photos = product!.photos.filter((img:any) => img !== photoUrl);
         });
 
         // Remove old videos
@@ -129,9 +134,9 @@ export const editProduct = async(req:Request, res:Response,next:NextFunction)=>{
         });
 
         // Add new photos
-        if (req.files?['photos']:undefined) {
+        if (photos) {
             // Process and move photos
-            const processedPhotos = await mediaProcessor.processAndMoveMedia({files:req.files?['photos']:[],destinationDir:'photos',imgSize:50,imgQuality:80});
+            const processedPhotos = await mediaProcessor.processAndMoveMedia({files:photos,destinationDir:'photos',imgSize:50,imgQuality:80});
             const productPhotos:[] = []
             pathTrimmer({items:processedPhotos,newItems:productPhotos})
             product!.photos.push(...productPhotos);
@@ -139,9 +144,9 @@ export const editProduct = async(req:Request, res:Response,next:NextFunction)=>{
         }
        
         // Add new videos
-        if (req.files?['videos']:undefined) { 
+        if (videos) { 
             // Process and move videos
-            const processedVideos = await mediaProcessor.processAndMoveMedia({files:req.files?['videos']:[],destinationDir:'videos',isImage:false,videoSize:360});
+            const processedVideos = await mediaProcessor.processAndMoveMedia({files:videos, destinationDir:'videos',isImage:false,videoSize:360});
             const productVideos:[] = []
             pathTrimmer({items:processedVideos,newItems:productVideos}) 
             product!.videos.push(...productVideos);
@@ -153,30 +158,35 @@ export const editProduct = async(req:Request, res:Response,next:NextFunction)=>{
         if (req.body.description) product!.description = req.body.description;
         if (req.body.price) product!.price = req.body.price;
         if (req.body.category) product!.category = req.body.category;
+        if (req.body.stock) product!.stock = req.body.stock;
+        if (req.body.code) product!.code = req.body.code;
+        if (req.body.isAvailable) product!.isAvailable = req.body.isAvailable;
 
         // Save the updated food item
         await product!.save();
 
         // Clean up temporary files
-        if(Array.isArray(req.files?['photos']:[])){
-            await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
+        if(photos){
+            // await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
         }
 
         if(Array.isArray(req.files?['videos']:[])){
-            await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
+            // await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
         }
 
         appRes(res,200,'',`${product!.name} is updated!`,{product})
     } catch (e:any) {
+
         // Clean up temporary files
         if(Array.isArray(req.files?['photos']:[])){
-            await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
+            // await mediaProcessor.deleteTempFiles(req.files?['photos']:[])
         }
         if(Array.isArray(req.files?['videos']:[])){
-            await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
+            // await mediaProcessor.deleteTempFiles(req.files?['videos']:[])
         }
         return next(appErr(e.message,500))
-        }
+
+    }
 }
 
 export const deleteProduct = TryCatch( 
@@ -190,3 +200,13 @@ export const deleteProduct = TryCatch(
         appRes(res,200,'',`${product.name} is deleted!`,{})
     }
 )
+
+export const getCategories = async (req: Request, res: Response) => {
+    try {
+      // Fetch distinct 'category' values without any filters
+      const categories = await Product.distinct('category');
+      res.status(200).json(categories);
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching categories' });
+    }
+  };

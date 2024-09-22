@@ -1,7 +1,7 @@
-import path from 'path';
 import sharp from 'sharp';
 import ffmpeg from 'fluent-ffmpeg';
 import fs from 'fs'
+import path from 'path';
 
 export interface IMediaProcessor{ 
   files?:any,
@@ -11,6 +11,7 @@ export interface IMediaProcessor{
   isImage?:boolean,
   videoSize?:number
 }
+
 
 const mediaProcessor = {
   processAndMoveMedia: async ({files, destinationDir, imgSize, imgQuality, isImage = true, videoSize}:IMediaProcessor={}) => {
@@ -55,18 +56,8 @@ const mediaProcessor = {
     }
 
     return processedFiles;
-  },
-
-  deleteTempFiles: (files:any) => {
-    try {
-      for (const file of files) {
-        // await fs.remove(file.path);
-        fs.unlinkSync(file.path); // Remove the file
-      }
-    } catch (err) {
-      console.error('Error deleting temp files:', err);
-    }
   }
+
 };
 
 export default mediaProcessor;

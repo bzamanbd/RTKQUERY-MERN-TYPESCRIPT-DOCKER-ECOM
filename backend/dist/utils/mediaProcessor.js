@@ -3,10 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = __importDefault(require("path"));
 const sharp_1 = __importDefault(require("sharp"));
 const fluent_ffmpeg_1 = __importDefault(require("fluent-ffmpeg"));
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const mediaProcessor = {
     processAndMoveMedia: async ({ files, destinationDir, imgSize, imgQuality, isImage = true, videoSize } = {}) => {
         const processedFiles = [];
@@ -44,17 +44,6 @@ const mediaProcessor = {
             }
         }
         return processedFiles;
-    },
-    deleteTempFiles: (files) => {
-        try {
-            for (const file of files) {
-                // await fs.remove(file.path);
-                fs_1.default.unlinkSync(file.path); // Remove the file
-            }
-        }
-        catch (err) {
-            console.error('Error deleting temp files:', err);
-        }
     }
 };
 exports.default = mediaProcessor;

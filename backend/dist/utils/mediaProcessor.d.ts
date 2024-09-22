@@ -8,6 +8,5 @@ export interface IMediaProcessor {
 }
 declare const mediaProcessor: {
     processAndMoveMedia: ({ files, destinationDir, imgSize, imgQuality, isImage, videoSize }?: IMediaProcessor) => Promise<any>;
-    deleteTempFiles: (files: any) => void;
 };
 export default mediaProcessor;
