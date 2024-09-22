@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import deleteMedia from '../utils/deleteMedia';
 const { Schema } = mongoose;
 
 export interface IProduct extends Document{ 
@@ -83,6 +84,10 @@ const productSchema = new Schema(
         }
     },
     { timestamps:true }
-)
+);
+productSchema.post('findOneAndDelete', function(doc){ 
+    if(doc && doc.photos.length>0){doc.photos.forEach((photo:any)=>{deleteMedia(photo)})}
+    if(doc && doc.videos.length>0){doc.videos.forEach((video:any)=>{deleteMedia(video)})}
+} );
 const Product = mongoose.model('Product', productSchema)
 export default Product

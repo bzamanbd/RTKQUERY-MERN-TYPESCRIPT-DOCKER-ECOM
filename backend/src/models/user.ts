@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import deleteMedia from '../utils/deleteMedia';
 
 const { Schema } = mongoose;
 
@@ -76,5 +77,9 @@ const userSchema = new Schema(
     },
     { timestamps:true }
 );
+userSchema.post('findOneAndDelete', function(doc) {
+    if (doc && doc.avatar) {deleteMedia(doc.avatar)}
+});
+
 const User = mongoose.model<IUser>('User', userSchema);
 export default User

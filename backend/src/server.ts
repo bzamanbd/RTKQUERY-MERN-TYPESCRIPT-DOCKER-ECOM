@@ -6,17 +6,14 @@ import connectDb from "./config/connectDB"
 import globalErrorHandler from "./middlewares/globalErrorHandler"
 import router from "./routes/index"
 import notFound404 from './middlewares/notFound404';
+import path from 'path';
 
 const app = express() 
-
 const port = process.env.PORT || 9000
-
 connectDb()
 
-app.use(express.json(),router)
-
+app.use(express.json(),router) 
+app.use('/public', express.static(path.join(process.cwd(), 'public')))
 app.get('/',(req:Request,res:Response)=>{ appRes(res,200,'','server health is fine',{})})
-
 app.use(notFound404,globalErrorHandler)
-
 app.listen(port,()=>console.log(`server runs on http://localhost:${port}`))

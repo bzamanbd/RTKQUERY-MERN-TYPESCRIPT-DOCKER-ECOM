@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
+const deleteMedia_1 = __importDefault(require("../utils/deleteMedia"));
 const { Schema } = mongoose_1.default;
 const userSchema = new Schema({
     name: {
@@ -52,5 +53,10 @@ const userSchema = new Schema({
             ref: 'Order'
         }],
 }, { timestamps: true });
+userSchema.post('findOneAndDelete', function (doc) {
+    if (doc && doc.avatar) {
+        (0, deleteMedia_1.default)(doc.avatar);
+    }
+});
 const User = mongoose_1.default.model('User', userSchema);
 exports.default = User;

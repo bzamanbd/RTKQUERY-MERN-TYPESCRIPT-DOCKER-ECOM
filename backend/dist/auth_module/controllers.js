@@ -74,8 +74,8 @@ const signup = async (req, res, next) => {
     }
     catch (e) {
         if (req.file) {
-            (0, imageProcessor_1.deleteFile)(path_1.default.join('./temp', req.file.filename)); // Clean up on error
-        }
+            (0, imageProcessor_1.deleteFile)(path_1.default.join('./temp', req.file.filename));
+        } // Clean up on error
         return next((0, appErr_1.default)(e.message, 500));
     }
 };

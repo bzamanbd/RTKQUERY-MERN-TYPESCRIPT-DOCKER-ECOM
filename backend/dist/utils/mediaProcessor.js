@@ -11,11 +11,7 @@ const mediaProcessor = {
     processAndMoveMedia: async ({ files, destinationDir, imgSize, imgQuality, isImage = true, videoSize } = {}) => {
         const processedFiles = [];
         for (const file of files) {
-            const __dirname = path_1.default.dirname(__filename);
-            // Adjust '..' based on directory structure
-            const projectRoot = path_1.default.resolve(__dirname, '..');
-            // Navigate to the public folder
-            const outputDir = path_1.default.join(projectRoot, './public/product', destinationDir);
+            const outputDir = path_1.default.join(process.cwd(), './public/product', destinationDir);
             if (!fs_1.default.existsSync(outputDir)) {
                 fs_1.default.mkdirSync(outputDir, { recursive: true });
             }

@@ -17,13 +17,8 @@ const mediaProcessor = {
     const processedFiles:any = [];
 
     for (const file of files) {
-        const __dirname = path.dirname(__filename);
-
-        // Adjust '..' based on directory structure
-        const projectRoot = path.resolve(__dirname, '..');
-        
-        // Navigate to the public folder
-        const outputDir = path.join(projectRoot, './public/product', destinationDir);
+      
+        const outputDir = path.join(process.cwd(), './public/product', destinationDir);
         
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
