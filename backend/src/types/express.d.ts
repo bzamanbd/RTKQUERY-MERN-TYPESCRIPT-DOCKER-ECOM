@@ -1,9 +1,11 @@
-import { Request } from "express"
+//src/types/express.d.ts
 
 declare global {
   namespace Express {
     interface Request {
-      user?: any
+      user?: any;
     }
   }
 }
+
+export {};

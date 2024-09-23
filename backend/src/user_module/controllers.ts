@@ -81,7 +81,7 @@ export const deleteUser = TryCatch(
 
 export const fetchProfile = TryCatch( 
     async(req:Request, res:Response, next:NextFunction)=>{ 
-        const _id = req.user?.id
+        const _id = req.user?.id;
         if(!_id) return next(appErr('_id is required',400))
         const user = await User.findById(_id)
         if (!user) return next(appErr('User not found!',404))

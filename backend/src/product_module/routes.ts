@@ -2,6 +2,7 @@ import {Router} from "express"
 import {
     createProduct,
     fetchProducts,
+    fetchProductsWithFilter,
     fetchLatestProduct,
     fetchProductById,
     editProduct,
@@ -18,12 +19,11 @@ const productMediaUploader =  mediaUploader.fields([{name:'photos',maxCount:3},{
 
 routes.post("/new",isLoggedIn,isAdmin,productMediaUploader,createProduct)
 routes.get("/",fetchProducts)
+routes.get("/all",fetchProductsWithFilter)
 routes.get("/latest",fetchLatestProduct)
 routes.get("/:id",fetchProductById)
 routes.get("/categories",getCategories)
 routes.put("/:id",isLoggedIn,isAdmin,productMediaUploader,editProduct)
 routes.delete("/:id",isLoggedIn,deleteProduct)
-
-
 
 export default routes

@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Request, Response, NextFunction } from "express";
 export declare const createProduct: (req: Request, res: Response, next: NextFunction) => void;
 export declare const fetchProducts: (req: Request, res: Response, next: NextFunction) => void;
+export declare const fetchProductsWithFilter: (req: Request, res: Response, next: NextFunction) => void;
 export declare const fetchLatestProduct: (req: Request, res: Response, next: NextFunction) => void;
 export declare const fetchProductById: (req: Request, res: Response, next: NextFunction) => void;
 export declare const editProduct: (req: Request, res: Response, next: NextFunction) => void;

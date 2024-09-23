@@ -13,7 +13,8 @@
     "isolatedModules": true,                    // Enable transpilation and type-checking for each file as a separate process
     "declaration": true,                        // Generate .d.ts files from TypeScript and JavaScript files
     "noImplicitAny": true,                     // Allow implicit 'any' types
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
-  "include": [ "src/**/*.ts", "types.d.ts"],
+  "include": [ "src/**/*.ts", "src/types/express.d.ts"],
   "exclude": ["node_modules"]
 }

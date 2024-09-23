@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCategories = exports.deleteProduct = exports.editProduct = exports.fetchProductById = exports.fetchLatestProduct = exports.fetchProducts = exports.createProduct = void 0;
+exports.getCategories = exports.deleteProduct = exports.editProduct = exports.fetchProductById = exports.fetchLatestProduct = exports.fetchProductsWithFilter = exports.fetchProducts = exports.createProduct = void 0;
 const appErr_1 = __importDefault(require("../utils/appErr"));
 require("dotenv/config");
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -66,6 +66,27 @@ exports.fetchProducts = (0, tryCatch_1.default)(async (req, res, next) => {
     if (products.length < 1)
         return (0, appRes_1.default)(res, 200, 'False', `${products.length} product found!`, { products });
     (0, appRes_1.default)(res, 200, '', `${products.length} Products found!`, { products });
+});
+exports.fetchProductsWithFilter = (0, tryCatch_1.default)(async (req, res, next) => {
+    const { name, sort, category, price } = req.query;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(process.env.PRODUCT_PER_PAGE) || 4;
+    //pagination
+    const skip = (page - 1) * limit;
+    const baseQuery = {};
+    if (name)
+        baseQuery.name = { $regex: name, $options: 'i' };
+    if (price)
+        baseQuery.price = { $lte: Number(price) };
+    if (category)
+        baseQuery.category = category;
+    const productsPromise = product_1.default.find(baseQuery)
+        .sort(sort && { price: sort === "asc" ? 1 : -1 })
+        .limit(limit)
+        .skip(skip);
+    const [products, filteredOnlyProduct] = await Promise.all([productsPromise, product_1.default.find(baseQuery)]);
+    const totalPage = Math.ceil(filteredOnlyProduct.length / limit);
+    (0, appRes_1.default)(res, 200, 'True', `${products.length} product found`, { products, totalPage });
 });
 exports.fetchLatestProduct = (0, tryCatch_1.default)(async (req, res, next) => {
     const products = await product_1.default.find({}).sort({ createdAt: -1 }).limit(5);

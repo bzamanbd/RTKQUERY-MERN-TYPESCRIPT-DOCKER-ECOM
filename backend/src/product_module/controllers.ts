@@ -9,7 +9,7 @@ import { deleteFile } from "../utils/oldImageRemover";
 import { Request, Response, NextFunction } from "express";
 import TryCatch from "../middlewares/tryCatch";
 import deleteTempFiles from "../utils/deleteTempFiles";
-
+import { BaseQuery, SearchRequestQuery } from "../types/types";
 
 export const createProduct = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{
@@ -65,6 +65,32 @@ export const fetchProducts = TryCatch(
         appRes(res,200,'',`${products.length} Products found!`,{products})
     }
 )
+
+export const fetchProductsWithFilter = TryCatch( 
+    async(req:Request<{},{},{}, SearchRequestQuery>, res:Response, next:NextFunction)=>{ 
+        const {name, sort, category, price} = req.query; 
+        const page = Number(req.query.page) || 1; 
+        const limit = Number(process.env.PRODUCT_PER_PAGE) || 4
+        //pagination
+        const skip = (page - 1) * limit; 
+
+        const baseQuery:BaseQuery = {};
+        if(name)baseQuery.name={$regex:name, $options:'i'};
+        if(price)baseQuery.price={$lte:Number(price)};
+        if(category)baseQuery.category=category;
+
+        const productsPromise = Product.find(baseQuery)
+            .sort(sort && {price : sort === "asc" ? 1 : -1 })
+            .limit(limit) 
+            .skip(skip)
+        const [products, filteredOnlyProduct] = await Promise.all([productsPromise, Product.find(baseQuery)]);
+        const totalPage = Math.ceil(filteredOnlyProduct.length / limit);
+
+        appRes(res,200,'True',`${products.length} product found`,{products,totalPage})
+
+    }
+)
+
 
 export const fetchLatestProduct = TryCatch( 
     async(req:Request,res:Response,next:NextFunction)=>{ 
