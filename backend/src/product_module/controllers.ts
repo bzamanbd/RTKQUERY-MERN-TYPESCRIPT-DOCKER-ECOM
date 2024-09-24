@@ -55,16 +55,29 @@ export const createProduct = TryCatch(
         deleteTempFiles([...photos, ...videos]);
         appRes(res,201,'',`${product.name} is created!`,{product})
     }
-)
+);
 
 export const fetchProducts = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{
         const products = await Product.find({})
-        if (!products) return next(appErr('Product not found!',404))
-        if (products.length<1) return appRes(res,200,'False',`${products.length} product found!`,{products})
+        if (products.length<1){
+            appRes(res,200,'',`Product not found!`,{products}); 
+            return;
+        }
         appRes(res,200,'',`${products.length} Products found!`,{products})
     }
-)
+);
+
+export const fetchProductsCats = TryCatch( 
+    async(req:Request, res:Response,next:NextFunction)=>{
+        const categories = await Product.distinct('category');
+        if (categories.length<1){
+            appRes(res,200,'',`Categories not found!`,{categories}); 
+            return;
+        }
+        appRes(res,200,'',`${categories.length} Category found!`,{categories});
+    }
+);
 
 export const fetchProductsWithFilter = TryCatch( 
     async(req:Request<{},{},{}, SearchRequestQuery>, res:Response, next:NextFunction)=>{ 
@@ -86,10 +99,10 @@ export const fetchProductsWithFilter = TryCatch(
         const [products, filteredOnlyProduct] = await Promise.all([productsPromise, Product.find(baseQuery)]);
         const totalPage = Math.ceil(filteredOnlyProduct.length / limit);
 
-        appRes(res,200,'True',`${products.length} product found`,{products,totalPage})
+        appRes(res,200,'',`${products.length} product found`,{products,totalPage})
 
     }
-)
+);
 
 
 export const fetchLatestProduct = TryCatch( 
@@ -98,7 +111,7 @@ export const fetchLatestProduct = TryCatch(
         if (products.length<1) return appRes(res,200,'',`${products.length} product found!`,{products})
         appRes(res,200,'',`${products.length} Products found!`,{products})
     }
-)
+);
 
 export const fetchProductById = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{ 
@@ -109,7 +122,7 @@ export const fetchProductById = TryCatch(
         if (!product) return next(appErr('Product not found!',404))
         appRes(res,200,'',`${product.name} found!`,{product})
     }
-)
+);
 
 export const editProduct = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{ 
@@ -189,7 +202,7 @@ export const editProduct = TryCatch(
     
         }
     }
-)
+);
 
 export const deleteProduct = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{ 
@@ -201,11 +214,4 @@ export const deleteProduct = TryCatch(
         await Product.findByIdAndDelete({_id})
         appRes(res,200,'',`${product.name} is deleted!`,{})
     }
-)
-
-export const getCategories = TryCatch( 
-    async(req:Request,res:Response,next:NextFunction)=>{ 
-        const categories = await Product.distinct('category'); 
-        appRes(res,200,'True','',{categories});
-    }
-)
+);

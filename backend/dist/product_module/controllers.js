@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCategories = exports.deleteProduct = exports.editProduct = exports.fetchProductById = exports.fetchLatestProduct = exports.fetchProductsWithFilter = exports.fetchProducts = exports.createProduct = void 0;
+exports.deleteProduct = exports.editProduct = exports.fetchProductById = exports.fetchLatestProduct = exports.fetchProductsWithFilter = exports.fetchProductsCats = exports.fetchProducts = exports.createProduct = void 0;
 const appErr_1 = __importDefault(require("../utils/appErr"));
 require("dotenv/config");
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -61,11 +61,19 @@ exports.createProduct = (0, tryCatch_1.default)(async (req, res, next) => {
 });
 exports.fetchProducts = (0, tryCatch_1.default)(async (req, res, next) => {
     const products = await product_1.default.find({});
-    if (!products)
-        return next((0, appErr_1.default)('Product not found!', 404));
-    if (products.length < 1)
-        return (0, appRes_1.default)(res, 200, 'False', `${products.length} product found!`, { products });
+    if (products.length < 1) {
+        (0, appRes_1.default)(res, 200, '', `Product not found!`, { products });
+        return;
+    }
     (0, appRes_1.default)(res, 200, '', `${products.length} Products found!`, { products });
+});
+exports.fetchProductsCats = (0, tryCatch_1.default)(async (req, res, next) => {
+    const categories = await product_1.default.distinct('category');
+    if (categories.length < 1) {
+        (0, appRes_1.default)(res, 200, '', `Categories not found!`, { categories });
+        return;
+    }
+    (0, appRes_1.default)(res, 200, '', `${categories.length} Category found!`, { categories });
 });
 exports.fetchProductsWithFilter = (0, tryCatch_1.default)(async (req, res, next) => {
     const { name, sort, category, price } = req.query;
@@ -86,7 +94,7 @@ exports.fetchProductsWithFilter = (0, tryCatch_1.default)(async (req, res, next)
         .skip(skip);
     const [products, filteredOnlyProduct] = await Promise.all([productsPromise, product_1.default.find(baseQuery)]);
     const totalPage = Math.ceil(filteredOnlyProduct.length / limit);
-    (0, appRes_1.default)(res, 200, 'True', `${products.length} product found`, { products, totalPage });
+    (0, appRes_1.default)(res, 200, '', `${products.length} product found`, { products, totalPage });
 });
 exports.fetchLatestProduct = (0, tryCatch_1.default)(async (req, res, next) => {
     const products = await product_1.default.find({}).sort({ createdAt: -1 }).limit(5);
@@ -207,8 +215,4 @@ exports.deleteProduct = (0, tryCatch_1.default)(async (req, res, next) => {
         return next((0, appErr_1.default)('Product not found!', 404));
     await product_1.default.findByIdAndDelete({ _id });
     (0, appRes_1.default)(res, 200, '', `${product.name} is deleted!`, {});
-});
-exports.getCategories = (0, tryCatch_1.default)(async (req, res, next) => {
-    const categories = await product_1.default.distinct('category');
-    (0, appRes_1.default)(res, 200, 'True', '', { categories });
 });
