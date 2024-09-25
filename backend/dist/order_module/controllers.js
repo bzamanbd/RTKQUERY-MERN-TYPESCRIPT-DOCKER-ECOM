@@ -3,21 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processOrder = exports.deleteOrder = exports.fetchOrder = exports.createOrder = exports.fetchOrders = void 0;
+exports.updateOrderStatus = exports.deleteOwnOrder = exports.deleteOrder = exports.myOrders = exports.fetchOrder = exports.fetchOrders = exports.createOrder = void 0;
 const product_1 = require("./../models/product");
 const tryCatch_1 = __importDefault(require("../middlewares/tryCatch"));
 const appErr_1 = __importDefault(require("../utils/appErr"));
 const order_1 = require("../models/order");
 const reduceStock_1 = require("../utils/reduceStock");
 const appRes_1 = __importDefault(require("../utils/appRes"));
-exports.fetchOrders = (0, tryCatch_1.default)(async (req, res, next) => {
-    const orders = await order_1.Order.find({});
-    if (orders.length < 1) {
-        (0, appRes_1.default)(res, 200, '', 'Order not found', { orders });
-        return;
-    }
-    (0, appRes_1.default)(res, 200, '', `${orders.length} Orders found!`, { orders });
-});
+const mongoose_1 = __importDefault(require("mongoose"));
 exports.createOrder = (0, tryCatch_1.default)(async (req, res, next) => {
     const { orderedItems, shippingAddress, discountCode } = req.body;
     if (!orderedItems || !shippingAddress)
@@ -58,9 +51,54 @@ exports.createOrder = (0, tryCatch_1.default)(async (req, res, next) => {
     await (0, reduceStock_1.reduceStock)(processedItems);
     (0, appRes_1.default)(res, 201, '', 'New order created', { order });
 });
+exports.fetchOrders = (0, tryCatch_1.default)(async (req, res, next) => {
+    const orders = await order_1.Order.find({}).populate("customer", "name");
+    if (orders.length < 1)
+        return (0, appRes_1.default)(res, 200, '', `Orders not found!`, { orders });
+    (0, appRes_1.default)(res, 200, '', `${orders.length} Orders found!`, { orders });
+});
 exports.fetchOrder = (0, tryCatch_1.default)(async (req, res, next) => {
+    const orderId = req.params.id;
+    if (!orderId)
+        return next((0, appErr_1.default)('id is required', 400));
+    if (!mongoose_1.default.Types.ObjectId.isValid(orderId))
+        return next((0, appErr_1.default)('Invalid ID format', 400));
+    const order = await order_1.Order.findById({ _id: orderId }).populate("customer", "name");
+    if (!order)
+        return (0, appRes_1.default)(res, 200, '', `Order not found!`, { order });
+    (0, appRes_1.default)(res, 200, '', `Order found!`, { order });
+});
+exports.myOrders = (0, tryCatch_1.default)(async (req, res, next) => {
+    const userId = req.user?._id;
+    if (!mongoose_1.default.Types.ObjectId.isValid(userId))
+        return next((0, appErr_1.default)('Invalid ID format', 400));
+    const orders = await order_1.Order.find({ customer: userId });
+    if (!orders)
+        return (0, appRes_1.default)(res, 200, '', `Orders not found!`, { orders });
+    (0, appRes_1.default)(res, 200, '', `Orders found!`, { orders });
 });
 exports.deleteOrder = (0, tryCatch_1.default)(async (req, res, next) => {
+    const orderId = req.params.id;
+    if (!mongoose_1.default.Types.ObjectId.isValid(orderId))
+        return next((0, appErr_1.default)('Invalid ID format', 400));
+    await order_1.Order.findByIdAndDelete(orderId);
+    (0, appRes_1.default)(res, 200, '', 'Order is deleted successfully', {});
 });
-exports.processOrder = (0, tryCatch_1.default)(async (req, res, next) => {
+exports.deleteOwnOrder = (0, tryCatch_1.default)(async (req, res, next) => {
+    const userId = req.user._id;
+    if (!mongoose_1.default.Types.ObjectId.isValid(userId))
+        return next((0, appErr_1.default)('Invalid ID format', 400));
+    await order_1.Order.findOneAndDelete({ customer: userId });
+    (0, appRes_1.default)(res, 200, '', 'Order is deleted successfully', {});
+});
+exports.updateOrderStatus = (0, tryCatch_1.default)(async (req, res, next) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const validStatuses = ["Processing", "Shipped", "Delivered"];
+    if (!validStatuses.includes(status))
+        return (0, appRes_1.default)(res, 200, '', 'Invalid status', {});
+    const updatedOrder = await order_1.Order.findByIdAndUpdate(id, { status }, { new: true });
+    if (!updatedOrder)
+        return next((0, appErr_1.default)('No order found!', 404));
+    (0, appRes_1.default)(res, 200, '', 'Order updated successfully', { updatedOrder });
 });

@@ -71,10 +71,7 @@ export const fetchProducts = TryCatch(
 export const fetchProductsCats = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{
         const categories = await Product.distinct('category');
-        if (categories.length<1){
-            appRes(res,200,'',`Categories not found!`,{categories}); 
-            return;
-        }
+        if(categories.length<1)return appRes(res,200,'',`Categories not found!`,{categories});
         appRes(res,200,'',`${categories.length} Category found!`,{categories});
     }
 );
@@ -118,7 +115,7 @@ export const fetchProductById = TryCatch(
         if(!_id) return next(appErr('id is required',400))
         if (!mongoose.Types.ObjectId.isValid(_id)) return next(appErr('Invalid ID format',400)) 
         const product = await Product.findById({_id})
-        if (!product) return next(appErr('Product not found!',404))
+        if (!product) return appRes(res,200,'',`product found!`,{product})
         appRes(res,200,'',`${product.name} found!`,{product})
     }
 );

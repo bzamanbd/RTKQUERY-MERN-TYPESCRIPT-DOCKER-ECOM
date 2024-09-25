@@ -5,18 +5,18 @@ export declare const Order: mongoose.Model<{
 } & {
     items: mongoose.Types.DocumentArray<{
         name?: string | null | undefined;
-        photo?: string | null | undefined;
         price?: number | null | undefined;
+        photo?: string | null | undefined;
         quantity?: number | null | undefined;
         productId?: mongoose.Types.ObjectId | null | undefined;
     }>;
+    status: "Processing" | "Shipped" | "Delivered";
     subtotal: number;
     tax: number;
     shippingCharges: number;
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
-    status: "Processing" | "Shipped" | "Delivered";
     shippingAddress?: {
         address: string;
         city: string;
@@ -31,18 +31,18 @@ export declare const Order: mongoose.Model<{
 } & {
     items: mongoose.Types.DocumentArray<{
         name?: string | null | undefined;
-        photo?: string | null | undefined;
         price?: number | null | undefined;
+        photo?: string | null | undefined;
         quantity?: number | null | undefined;
         productId?: mongoose.Types.ObjectId | null | undefined;
     }>;
+    status: "Processing" | "Shipped" | "Delivered";
     subtotal: number;
     tax: number;
     shippingCharges: number;
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
-    status: "Processing" | "Shipped" | "Delivered";
     shippingAddress?: {
         address: string;
         city: string;
@@ -57,18 +57,18 @@ export declare const Order: mongoose.Model<{
 } & {
     items: mongoose.Types.DocumentArray<{
         name?: string | null | undefined;
-        photo?: string | null | undefined;
         price?: number | null | undefined;
+        photo?: string | null | undefined;
         quantity?: number | null | undefined;
         productId?: mongoose.Types.ObjectId | null | undefined;
     }>;
+    status: "Processing" | "Shipped" | "Delivered";
     subtotal: number;
     tax: number;
     shippingCharges: number;
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
-    status: "Processing" | "Shipped" | "Delivered";
     shippingAddress?: {
         address: string;
         city: string;
@@ -87,18 +87,18 @@ export declare const Order: mongoose.Model<{
 } & {
     items: mongoose.Types.DocumentArray<{
         name?: string | null | undefined;
-        photo?: string | null | undefined;
         price?: number | null | undefined;
+        photo?: string | null | undefined;
         quantity?: number | null | undefined;
         productId?: mongoose.Types.ObjectId | null | undefined;
     }>;
+    status: "Processing" | "Shipped" | "Delivered";
     subtotal: number;
     tax: number;
     shippingCharges: number;
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
-    status: "Processing" | "Shipped" | "Delivered";
     shippingAddress?: {
         address: string;
         city: string;
@@ -113,18 +113,18 @@ export declare const Order: mongoose.Model<{
 } & {
     items: mongoose.Types.DocumentArray<{
         name?: string | null | undefined;
-        photo?: string | null | undefined;
         price?: number | null | undefined;
+        photo?: string | null | undefined;
         quantity?: number | null | undefined;
         productId?: mongoose.Types.ObjectId | null | undefined;
     }>;
+    status: "Processing" | "Shipped" | "Delivered";
     subtotal: number;
     tax: number;
     shippingCharges: number;
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
-    status: "Processing" | "Shipped" | "Delivered";
     shippingAddress?: {
         address: string;
         city: string;
@@ -139,18 +139,18 @@ export declare const Order: mongoose.Model<{
 } & {
     items: mongoose.Types.DocumentArray<{
         name?: string | null | undefined;
-        photo?: string | null | undefined;
         price?: number | null | undefined;
+        photo?: string | null | undefined;
         quantity?: number | null | undefined;
         productId?: mongoose.Types.ObjectId | null | undefined;
     }>;
+    status: "Processing" | "Shipped" | "Delivered";
     subtotal: number;
     tax: number;
     shippingCharges: number;
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
-    status: "Processing" | "Shipped" | "Delivered";
     shippingAddress?: {
         address: string;
         city: string;

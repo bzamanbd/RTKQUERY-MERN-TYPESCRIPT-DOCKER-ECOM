@@ -7,20 +7,6 @@ exports.Product = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const deleteMedia_1 = __importDefault(require("../utils/deleteMedia"));
 const { Schema } = mongoose_1.default;
-// export interface IProduct extends Document{ 
-//     name: string,
-//     description:string,
-//     price:number,
-//     category:string,
-//     photos:string[],
-//     videos:string[],
-//     stock:number,
-//     tags:string[],
-//     code:string,
-//     isAvailable:boolean,
-//     rating:number,
-//     ratingCount:string
-// }
 const productSchema = new Schema({
     name: {
         type: String,

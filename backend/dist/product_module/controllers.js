@@ -69,10 +69,8 @@ exports.fetchProducts = (0, tryCatch_1.default)(async (req, res, next) => {
 });
 exports.fetchProductsCats = (0, tryCatch_1.default)(async (req, res, next) => {
     const categories = await product_1.Product.distinct('category');
-    if (categories.length < 1) {
-        (0, appRes_1.default)(res, 200, '', `Categories not found!`, { categories });
-        return;
-    }
+    if (categories.length < 1)
+        return (0, appRes_1.default)(res, 200, '', `Categories not found!`, { categories });
     (0, appRes_1.default)(res, 200, '', `${categories.length} Category found!`, { categories });
 });
 exports.fetchProductsWithFilter = (0, tryCatch_1.default)(async (req, res, next) => {
@@ -110,7 +108,7 @@ exports.fetchProductById = (0, tryCatch_1.default)(async (req, res, next) => {
         return next((0, appErr_1.default)('Invalid ID format', 400));
     const product = await product_1.Product.findById({ _id });
     if (!product)
-        return next((0, appErr_1.default)('Product not found!', 404));
+        return (0, appRes_1.default)(res, 200, '', `product found!`, { product });
     (0, appRes_1.default)(res, 200, '', `${product.name} found!`, { product });
 });
 exports.editProduct = (0, tryCatch_1.default)(async (req, res, next) => {

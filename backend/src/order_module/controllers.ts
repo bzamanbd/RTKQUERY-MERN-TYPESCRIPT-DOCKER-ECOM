@@ -6,17 +6,9 @@ import appErr from "../utils/appErr";
 import {Order} from "../models/order";
 import { reduceStock } from "../utils/reduceStock";
 import appRes from "../utils/appRes";
+import mongoose from 'mongoose';
 
-export const fetchOrders = TryCatch(
-    async(req:Request,res:Response,next:NextFunction)=>{
-        const orders = await Order.find({})
-        if(orders.length<1){ 
-            appRes(res,200,'','Order not found',{orders});
-            return;
-        }
-        appRes(res,200,'',`${orders.length} Orders found!`,{orders})
-    }
-);
+
 
 export const createOrder = TryCatch( 
     async(req:Request<{},{}, NewOrderRequestBody>,res:Response,next:NextFunction)=>{ 
@@ -63,19 +55,65 @@ export const createOrder = TryCatch(
     }
 );
 
+export const fetchOrders = TryCatch(
+    async(req:Request,res:Response,next:NextFunction)=>{
+        const orders = await Order.find({}).populate("customer","name");
+        if(orders.length<1)return appRes(res,200,'',`Orders not found!`,{orders})
+        appRes(res,200,'',`${orders.length} Orders found!`,{orders})
+    }
+);
+
 export const fetchOrder = TryCatch( 
     async(req:Request,res:Response,next:NextFunction)=>{ 
-        
+        const orderId = req.params.id 
+        if(!orderId) return next(appErr('id is required',400))
+        if (!mongoose.Types.ObjectId.isValid(orderId)) return next(appErr('Invalid ID format',400)) 
+        const order = await Order.findById({_id:orderId}).populate("customer","name");
+        if(!order)return appRes(res,200,'',`Order not found!`,{order});
+        appRes(res,200,'',`Order found!`,{order});
+    }
+);
+
+export const myOrders = TryCatch(
+    async(req:Request,res:Response,next:NextFunction)=>{
+        const userId = req.user?._id;
+        if (!mongoose.Types.ObjectId.isValid(userId)) return next(appErr('Invalid ID format',400))
+        const orders = await Order.find({customer:userId})
+        if(!orders)return appRes(res,200,'',`Orders not found!`,{orders})
+        appRes(res,200,'',`Orders found!`,{orders})
     }
 );
 
 export const deleteOrder = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{
-
+        const orderId = req.params.id; 
+        if(!mongoose.Types.ObjectId.isValid(orderId)) return next(appErr('Invalid ID format',400))
+        await Order.findByIdAndDelete(orderId);
+        appRes(res,200,'','Order is deleted successfully',{});
     }
 );
-export const processOrder = TryCatch( 
-    async(req:Request, res:Response,next:NextFunction)=>{
 
+export const deleteOwnOrder = TryCatch( 
+    async(req:Request, res:Response,next:NextFunction)=>{
+        const userId = req.user._id;
+        if(!mongoose.Types.ObjectId.isValid(userId)) return next(appErr('Invalid ID format',400))
+        await Order.findOneAndDelete({customer:userId}); 
+        appRes(res,200,'','Order is deleted successfully',{});
+    }
+);
+
+export const updateOrderStatus = TryCatch( 
+    async(req:Request, res:Response,next:NextFunction)=>{
+        const {id} = req.params;
+        const {status} = req.body;
+        const validStatuses = ["Processing","Shipped","Delivered"];
+        if(!validStatuses.includes(status))return appRes(res,200,'','Invalid status',{});
+        const updatedOrder = await Order.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true }
+          );
+        if(!updatedOrder)return next(appErr('No order found!',404));
+        appRes(res,200,'','Order updated successfully',{updatedOrder});
     }
 );

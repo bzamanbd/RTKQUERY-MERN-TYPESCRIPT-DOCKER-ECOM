@@ -3,21 +3,6 @@ import deleteMedia from '../utils/deleteMedia';
 import { IProduct } from '../types/types';
 const {Schema } = mongoose;
 
-// export interface IProduct extends Document{ 
-//     name: string,
-//     description:string,
-//     price:number,
-//     category:string,
-//     photos:string[],
-//     videos:string[],
-//     stock:number,
-//     tags:string[],
-//     code:string,
-//     isAvailable:boolean,
-//     rating:number,
-//     ratingCount:string
-// }
-
 const productSchema = new Schema(
     {
         name: {
