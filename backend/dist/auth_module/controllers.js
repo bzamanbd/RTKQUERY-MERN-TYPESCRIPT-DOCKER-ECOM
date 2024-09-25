@@ -10,7 +10,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const appRes_1 = __importDefault(require("../utils/appRes"));
-const user_1 = __importDefault(require("../models/user"));
+const user_1 = require("../models/user");
 const adminEmails_1 = __importDefault(require("../utils/adminEmails"));
 const isValidEmail_1 = __importDefault(require("../utils/isValidEmail"));
 const path_1 = __importDefault(require("path"));
@@ -36,7 +36,7 @@ const signup = async (req, res, next) => {
         return next((0, appErr_1.default)('Invalid email format', 400));
     }
     try {
-        const emailExists = await user_1.default.findOne({ email: payload.email });
+        const emailExists = await user_1.User.findOne({ email: payload.email });
         if (emailExists) {
             if (avatar)
                 (0, fs_1.rm)(avatar.path, () => { console.log('avatar path deleted'); });
@@ -54,7 +54,7 @@ const signup = async (req, res, next) => {
         payload.password = hashedPass;
         payload.answer = hashedAnswer;
         payload.role = getRole(email);
-        const user = new user_1.default(payload);
+        const user = new user_1.User(payload);
         await user.save();
         if (req.file) {
             const filename = await (0, imageProcessor_1.processImage)({
@@ -86,7 +86,7 @@ exports.signin = (0, tryCatch_1.default)(async (req, res, next) => {
         return next((0, appErr_1.default)('email and password are required', 400));
     if (!(0, isValidEmail_1.default)(email))
         return next((0, appErr_1.default)('Invalid email format', 400));
-    const user = await user_1.default.findOne({ email });
+    const user = await user_1.User.findOne({ email });
     const isMatch = await bcryptjs_1.default.compare(password, user.password);
     if (!isMatch)
         return next((0, appErr_1.default)('Invalid Credentials', 401));

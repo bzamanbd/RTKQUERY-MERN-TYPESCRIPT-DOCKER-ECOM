@@ -1,22 +1,8 @@
 import mongoose from 'mongoose';
 import deleteMedia from '../utils/deleteMedia';
+import { IUser } from '../types/types';
 
 const { Schema } = mongoose;
-
-export interface IUser extends Document{ 
-    name: string,
-    email:string,
-    password:string | undefined,
-    phone:string,
-    address:string,
-    avatar:string,
-    question:string,
-    answer:string | undefined,
-    role:"client" | "admin" | "vendor" | "driver",
-    isBanned:boolean,
-    orders:[]
-}
-
 
 const userSchema = new Schema(
     {
@@ -81,5 +67,4 @@ userSchema.post('findOneAndDelete', function(doc) {
     if (doc && doc.avatar) {deleteMedia(doc.avatar)}
 });
 
-const User = mongoose.model<IUser>('User', userSchema);
-export default User
+export const User = mongoose.model<IUser>('User', userSchema);

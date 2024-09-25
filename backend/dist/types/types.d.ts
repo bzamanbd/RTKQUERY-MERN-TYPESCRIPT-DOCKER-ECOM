@@ -1,4 +1,31 @@
 import { Types } from "mongoose";
+export interface IUser extends Document {
+    name: string;
+    email: string;
+    password: string | undefined;
+    phone: string;
+    address: string;
+    avatar: string;
+    question: string;
+    answer: string | undefined;
+    role: "client" | "admin" | "vendor" | "driver";
+    isBanned: boolean;
+    orders: [];
+}
+export interface IProduct extends Document {
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    photos: string[];
+    videos: string[];
+    stock: number;
+    tags: string[];
+    code: string;
+    isAvailable: boolean;
+    rating: number;
+    ratingCount: string;
+}
 export type SearchRequestQuery = {
     name?: string;
     price?: string;
@@ -22,28 +49,22 @@ export interface NewProductRequestBody {
     price: number;
     stock: number;
 }
-export type ShippingInfoType = {
+export type ShippingAddressType = {
     address: string;
     city: string;
-    state: string;
+    status: string;
     country: string;
-    pinCode: number;
+    postCode: number;
 };
 export type OrderItemsType = {
     name: string;
     photo: string;
     price: number;
-    productId: Types.ObjectId;
     quantity: number;
+    productId: Types.ObjectId;
 };
 export interface NewOrderRequestBody {
-    shippingInfo: ShippingInfoType;
-    user: string;
-    subtotal: number;
-    tax: number;
-    shippingCharges: number;
-    discount: number;
-    total: number;
-    status: string;
-    orderItems: OrderItemsType[];
+    shippingAddress: ShippingAddressType;
+    orderedItems: OrderItemsType[];
+    discountCode?: string;
 }

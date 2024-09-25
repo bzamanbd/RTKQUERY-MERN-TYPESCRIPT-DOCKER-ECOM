@@ -8,7 +8,7 @@ const appErr_1 = __importDefault(require("../utils/appErr"));
 require("dotenv/config");
 const mongoose_1 = __importDefault(require("mongoose"));
 const appRes_1 = __importDefault(require("../utils/appRes"));
-const product_1 = __importDefault(require("../models/product"));
+const product_1 = require("../models/product");
 const mediaProcessor_1 = __importDefault(require("../utils/mediaProcessor"));
 const pathTrimmer_1 = require("../utils/pathTrimmer");
 const oldImageRemover_1 = require("../utils/oldImageRemover");
@@ -33,13 +33,13 @@ exports.createProduct = (0, tryCatch_1.default)(async (req, res, next) => {
         (0, deleteTempFiles_1.default)([...photos, ...videos]);
         return next((0, appErr_1.default)('Product name, price, category & stock are required', 400));
     }
-    const existProduct = await product_1.default.findOne({ name: payload.name });
+    const existProduct = await product_1.Product.findOne({ name: payload.name });
     if (existProduct) {
         // Clean up temporary files
         (0, deleteTempFiles_1.default)([...photos, ...videos]);
         return next((0, appErr_1.default)(`${payload.name} is already exists`, 409));
     }
-    const product = new product_1.default(payload);
+    const product = new product_1.Product(payload);
     await product.save();
     if (product) {
         // Process and move photos
@@ -60,7 +60,7 @@ exports.createProduct = (0, tryCatch_1.default)(async (req, res, next) => {
     (0, appRes_1.default)(res, 201, '', `${product.name} is created!`, { product });
 });
 exports.fetchProducts = (0, tryCatch_1.default)(async (req, res, next) => {
-    const products = await product_1.default.find({});
+    const products = await product_1.Product.find({});
     if (products.length < 1) {
         (0, appRes_1.default)(res, 200, '', `Product not found!`, { products });
         return;
@@ -68,7 +68,7 @@ exports.fetchProducts = (0, tryCatch_1.default)(async (req, res, next) => {
     (0, appRes_1.default)(res, 200, '', `${products.length} Products found!`, { products });
 });
 exports.fetchProductsCats = (0, tryCatch_1.default)(async (req, res, next) => {
-    const categories = await product_1.default.distinct('category');
+    const categories = await product_1.Product.distinct('category');
     if (categories.length < 1) {
         (0, appRes_1.default)(res, 200, '', `Categories not found!`, { categories });
         return;
@@ -88,16 +88,16 @@ exports.fetchProductsWithFilter = (0, tryCatch_1.default)(async (req, res, next)
         baseQuery.price = { $lte: Number(price) };
     if (category)
         baseQuery.category = category;
-    const productsPromise = product_1.default.find(baseQuery)
+    const productsPromise = product_1.Product.find(baseQuery)
         .sort(sort && { price: sort === "asc" ? 1 : -1 })
         .limit(limit)
         .skip(skip);
-    const [products, filteredOnlyProduct] = await Promise.all([productsPromise, product_1.default.find(baseQuery)]);
+    const [products, filteredOnlyProduct] = await Promise.all([productsPromise, product_1.Product.find(baseQuery)]);
     const totalPage = Math.ceil(filteredOnlyProduct.length / limit);
     (0, appRes_1.default)(res, 200, '', `${products.length} product found`, { products, totalPage });
 });
 exports.fetchLatestProduct = (0, tryCatch_1.default)(async (req, res, next) => {
-    const products = await product_1.default.find({}).sort({ createdAt: -1 }).limit(5);
+    const products = await product_1.Product.find({}).sort({ createdAt: -1 }).limit(5);
     if (products.length < 1)
         return (0, appRes_1.default)(res, 200, '', `${products.length} product found!`, { products });
     (0, appRes_1.default)(res, 200, '', `${products.length} Products found!`, { products });
@@ -108,7 +108,7 @@ exports.fetchProductById = (0, tryCatch_1.default)(async (req, res, next) => {
         return next((0, appErr_1.default)('id is required', 400));
     if (!mongoose_1.default.Types.ObjectId.isValid(_id))
         return next((0, appErr_1.default)('Invalid ID format', 400));
-    const product = await product_1.default.findById({ _id });
+    const product = await product_1.Product.findById({ _id });
     if (!product)
         return next((0, appErr_1.default)('Product not found!', 404));
     (0, appRes_1.default)(res, 200, '', `${product.name} found!`, { product });
@@ -139,7 +139,7 @@ exports.editProduct = (0, tryCatch_1.default)(async (req, res, next) => {
     }
     ;
     try {
-        const product = await product_1.default.findById(_id);
+        const product = await product_1.Product.findById(_id);
         if (!product) {
             (0, deleteTempFiles_1.default)([...photos, ...videos]);
             return next((0, appErr_1.default)('product not found', 404));
@@ -210,9 +210,9 @@ exports.deleteProduct = (0, tryCatch_1.default)(async (req, res, next) => {
         return next((0, appErr_1.default)('id is required', 400));
     if (!mongoose_1.default.Types.ObjectId.isValid(_id))
         return next((0, appErr_1.default)('Invalid ID format', 400));
-    const product = await product_1.default.findById({ _id });
+    const product = await product_1.Product.findById({ _id });
     if (!product)
         return next((0, appErr_1.default)('Product not found!', 404));
-    await product_1.default.findByIdAndDelete({ _id });
+    await product_1.Product.findByIdAndDelete({ _id });
     (0, appRes_1.default)(res, 200, '', `${product.name} is deleted!`, {});
 });

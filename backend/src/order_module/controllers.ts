@@ -1,8 +1,9 @@
+import { Product } from './../models/product';
 import {Request, Response, NextFunction } from "express";
 import TryCatch from "../middlewares/tryCatch";
-import { NewOrderRequestBody } from "../types/types";
+import { NewOrderRequestBody} from "../types/types";
 import appErr from "../utils/appErr";
-import Order from "../models/order";
+import {Order} from "../models/order";
 import { reduceStock } from "../utils/reduceStock";
 import appRes from "../utils/appRes";
 
@@ -18,24 +19,47 @@ export const fetchOrders = TryCatch(
 );
 
 export const createOrder = TryCatch( 
-    async(req:Request<{},{},NewOrderRequestBody>,res:Response,next:NextFunction)=>{ 
-        const {shippingInfo,orderItems,user,subtotal,tax,shippingCharges,discount,total} = req.body; 
-        if(!shippingInfo || !orderItems || !user|| !subtotal || !tax || !shippingCharges || !discount || !total)return next(appErr('Please Enter all Fields',400));
+    async(req:Request<{},{}, NewOrderRequestBody>,res:Response,next:NextFunction)=>{ 
+        const {orderedItems, shippingAddress, discountCode } = req.body; 
+        if(!orderedItems || !shippingAddress)return next(appErr('Please Enter all Fields',400)); 
+        const processedItems = await Promise.all( 
+            orderedItems.map(async (orderedItem)=>{ 
+                const product = await Product.findById(orderedItem.productId);
+                if(!product)throw new Error(`Product with id ${orderedItem.productId} not found`) 
+                return{ 
+                    name: product.name,
+                    photo: product.photos[0],
+                    price: product.price,
+                    quantity: orderedItem.quantity,
+                    productId: product._id
+                }
+            })
+        );
+        
+        // Calculate subtotal, tax, shipping, and total
+        const subtotal = processedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        const tax = subtotal * 0.1; // 10% tax rate
+        const shippingCharges = 50; // Flat shipping charge
+        let discount = 0; // Discount will be calculated based on discountCode 
+        if (discountCode) {
+            // Example: apply a 10% discount if the discount code is valid
+            discount = subtotal * 0.1; // 10% discount for demonstration
+        }
+        const total = subtotal + tax + shippingCharges - discount;
 
         const order = await Order.create({ 
-            shippingInfo,
-            orderItems,
-            user,
+            shippingAddress,
+            items: processedItems,
             subtotal,
             tax,
             shippingCharges,
             discount,
-            total
+            total,
+            customer: req.user._id,
+            payment: total,
         });
-
-        await reduceStock(orderItems); 
-        
-        appRes(res,201,'True','New order created',{order})
+        await reduceStock(processedItems); 
+        appRes(res,201,'','New order created',{order})
     }
 );
 

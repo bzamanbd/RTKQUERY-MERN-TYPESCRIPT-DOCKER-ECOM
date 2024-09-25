@@ -5,7 +5,7 @@ import { isLoggedIn, isAdmin } from "../middlewares/auth"
 
 const routes = Router()
 
-routes.post('/',isLoggedIn, createOrder)
+routes.post('/new',isLoggedIn, createOrder)
 routes.get('/',isLoggedIn, isAdmin, fetchOrders) 
 routes.get('/:id',isLoggedIn, isAdmin, fetchOrder) 
 routes.post('/:id',isLoggedIn, isAdmin, processOrder) 

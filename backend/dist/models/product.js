@@ -3,9 +3,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Product = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const deleteMedia_1 = __importDefault(require("../utils/deleteMedia"));
 const { Schema } = mongoose_1.default;
+// export interface IProduct extends Document{ 
+//     name: string,
+//     description:string,
+//     price:number,
+//     category:string,
+//     photos:string[],
+//     videos:string[],
+//     stock:number,
+//     tags:string[],
+//     code:string,
+//     isAvailable:boolean,
+//     rating:number,
+//     ratingCount:string
+// }
 const productSchema = new Schema({
     name: {
         type: String,
@@ -75,5 +90,4 @@ productSchema.post('findOneAndDelete', function (doc) {
         doc.videos.forEach((video) => { (0, deleteMedia_1.default)(video); });
     }
 });
-const Product = mongoose_1.default.model('Product', productSchema);
-exports.default = Product;
+exports.Product = mongoose_1.default.model('Product', productSchema);

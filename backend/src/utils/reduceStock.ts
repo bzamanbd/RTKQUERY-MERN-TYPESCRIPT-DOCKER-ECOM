@@ -1,4 +1,4 @@
-import Product from "../models/product";
+import {Product} from "../models/product";
 import { OrderItemsType } from "../types/types";
 
 export const reduceStock = async (orderItems:OrderItemsType[])=>{

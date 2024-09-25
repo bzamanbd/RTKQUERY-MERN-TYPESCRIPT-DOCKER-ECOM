@@ -2,7 +2,7 @@ import appErr from "../utils/appErr"
 import 'dotenv/config'
 import mongoose from 'mongoose'
 import appRes from "../utils/appRes"
-import Product from '../models/product';
+import {Product} from '../models/product';
 import mediaProcessor from '../utils/mediaProcessor'
 import { pathTrimmer } from '../utils/pathTrimmer';
 import { deleteFile } from "../utils/oldImageRemover";
@@ -103,7 +103,6 @@ export const fetchProductsWithFilter = TryCatch(
 
     }
 );
-
 
 export const fetchLatestProduct = TryCatch( 
     async(req:Request,res:Response,next:NextFunction)=>{ 

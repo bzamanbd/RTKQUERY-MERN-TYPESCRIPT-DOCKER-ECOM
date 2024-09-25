@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 dotenv.config()
 import appRes from "../utils/appRes"
-import User from '../models/user'
+import {User} from '../models/user'
 import adminEmails from "../utils/adminEmails"
 import isValidEmail from '../utils/isValidEmail';
 import path from 'path';

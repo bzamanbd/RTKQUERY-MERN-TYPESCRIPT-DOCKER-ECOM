@@ -2,7 +2,7 @@ import appErr from "../utils/appErr"
 import bcrypt from "bcryptjs"
 import 'dotenv/config'
 import appRes from "../utils/appRes"
-import User from '../models/user'
+import {User} from '../models/user'
 import path from "path"
 import { processImage, deleteFile } from '../utils/imageProcessor';
 import { oldImageRemover } from "../utils/oldImageRemover" 

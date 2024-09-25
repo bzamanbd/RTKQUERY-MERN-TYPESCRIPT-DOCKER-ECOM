@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.User = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const deleteMedia_1 = __importDefault(require("../utils/deleteMedia"));
 const { Schema } = mongoose_1.default;
@@ -58,5 +59,4 @@ userSchema.post('findOneAndDelete', function (doc) {
         (0, deleteMedia_1.default)(doc.avatar);
     }
 });
-const User = mongoose_1.default.model('User', userSchema);
-exports.default = User;
+exports.User = mongoose_1.default.model('User', userSchema);

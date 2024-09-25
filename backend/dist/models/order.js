@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Order = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const { Schema } = mongoose_1.default;
 const orderSchema = new Schema({
-    shippingInfo: {
+    shippingAddress: {
         address: {
             type: String,
             required: true,
@@ -19,20 +20,24 @@ const orderSchema = new Schema({
             type: String,
             required: true
         },
-        country: {
-            type: String,
-            required: true
-        },
-        pinCode: {
+        postCode: {
             type: Number,
             required: true
         },
+        country: {
+            type: String,
+            required: true
+        }
     },
-    user: {
-        type: String,
-        ref: "User",
-        required: true
-    },
+    items: [
+        {
+            name: String,
+            photo: String,
+            price: Number,
+            quantity: Number,
+            productId: { type: Schema.Types.ObjectId, ref: "Product" }
+        }
+    ],
     subtotal: {
         type: Number,
         required: true
@@ -47,29 +52,22 @@ const orderSchema = new Schema({
     },
     discount: {
         type: Number,
-        required: true
+        default: 0
     },
     total: {
         type: Number,
         required: true
     },
+    customer: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    payment: {},
     status: {
         type: String,
         enum: ["Processing", "Shipped", "Delivered"],
         default: "Processing"
     },
-    orderItems: [
-        {
-            name: String,
-            photo: String,
-            price: Number,
-            quantity: Number,
-            productId: {
-                type: mongoose_1.default.Types.ObjectId,
-                ref: "Product"
-            }
-        }
-    ]
 }, { timestamps: true });
-const Order = mongoose_1.default.model('Order', orderSchema);
-exports.default = Order;
+exports.Order = mongoose_1.default.model('Order', orderSchema);

@@ -1,21 +1,22 @@
 import mongoose from 'mongoose';
 import deleteMedia from '../utils/deleteMedia';
-const { Schema } = mongoose;
+import { IProduct } from '../types/types';
+const {Schema } = mongoose;
 
-export interface IProduct extends Document{ 
-    name: string,
-    description:string,
-    price:number,
-    category:string,
-    photos:[],
-    videos:[],
-    stock:number,
-    tags:[],
-    code:string,
-    isAvailable:boolean,
-    rating:number,
-    ratingCount:string
-}
+// export interface IProduct extends Document{ 
+//     name: string,
+//     description:string,
+//     price:number,
+//     category:string,
+//     photos:string[],
+//     videos:string[],
+//     stock:number,
+//     tags:string[],
+//     code:string,
+//     isAvailable:boolean,
+//     rating:number,
+//     ratingCount:string
+// }
 
 const productSchema = new Schema(
     {
@@ -96,5 +97,4 @@ productSchema.post('findOneAndDelete', function(doc){
     if(doc && doc.photos.length>0){doc.photos.forEach((photo:any)=>{deleteMedia(photo)})}
     if(doc && doc.videos.length>0){doc.videos.forEach((video:any)=>{deleteMedia(video)})}
 } );
-const Product = mongoose.model('Product', productSchema)
-export default Product
+export const Product = mongoose.model<IProduct>('Product', productSchema)
