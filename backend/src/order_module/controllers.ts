@@ -8,8 +8,6 @@ import { reduceStock } from "../utils/reduceStock";
 import appRes from "../utils/appRes";
 import mongoose from 'mongoose';
 
-
-
 export const createOrder = TryCatch( 
     async(req:Request<{},{}, NewOrderRequestBody>,res:Response,next:NextFunction)=>{ 
         const {orderedItems, shippingAddress, discountCode } = req.body; 

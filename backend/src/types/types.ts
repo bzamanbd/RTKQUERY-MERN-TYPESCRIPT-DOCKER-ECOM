@@ -29,6 +29,11 @@ export interface IProduct  extends Document{
     ratingCount: string;
 }
 
+export interface ICoupon extends Document{ 
+    code: string; 
+    amount: number;
+}
+
 export type SearchRequestQuery = { 
     name?:string,
     price?:string,
