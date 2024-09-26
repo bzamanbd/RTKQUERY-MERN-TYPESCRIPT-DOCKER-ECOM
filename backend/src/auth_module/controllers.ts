@@ -82,7 +82,7 @@ export const signin = TryCatch(
         const secretKey = process.env.JWT_SECRET;
         if (!secretKey)return res.status(500).json({ error: 'Secret key is not defined' });
         const options: jwt.SignOptions = {expiresIn: '1h',algorithm: 'HS256'};
-        const tocken = jwt.sign({id:user!._id},secretKey,options)
-        appRes(res,200,'','Login success!',{tocken})
+        const token = jwt.sign({id:user!._id},secretKey,options)
+        appRes(res,200,'','Login success!',{token})
     }
 )

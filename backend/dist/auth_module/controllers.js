@@ -94,6 +94,6 @@ exports.signin = (0, tryCatch_1.default)(async (req, res, next) => {
     if (!secretKey)
         return res.status(500).json({ error: 'Secret key is not defined' });
     const options = { expiresIn: '1h', algorithm: 'HS256' };
-    const tocken = jsonwebtoken_1.default.sign({ id: user._id }, secretKey, options);
-    (0, appRes_1.default)(res, 200, '', 'Login success!', { tocken });
+    const token = jsonwebtoken_1.default.sign({ id: user._id }, secretKey, options);
+    (0, appRes_1.default)(res, 200, '', 'Login success!', { token });
 });

@@ -8,12 +8,14 @@ import router from "./routes/index"
 import notFound404 from './middlewares/notFound404';
 import path from 'path';
 import Stripe from 'stripe';
+import cors from 'cors';
 
 const app = express() 
 const port = process.env.PORT || 9000
 const stripeKey = process.env.STRIPE_KEY || ""
 connectDb()
 export const stripe = new Stripe(stripeKey);
+app.use(cors());
 app.use(express.json(),router) 
 app.use('/public', express.static(path.join(process.cwd(), 'public')))
 app.get('/',(req:Request,res:Response)=>{ appRes(res,200,'','server health is fine',{})})
