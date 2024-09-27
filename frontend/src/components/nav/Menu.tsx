@@ -8,7 +8,7 @@ const Menu = () => {
         <Link to="/">
           <div className="flex items-center space-x-2">
             <img src="/logo/logo2.png" alt="logo" className="h-16 w-16" />
-            <span className="text-gray-300 text-xl font-bold">My Website</span>
+            <span className="text-gray-300 text-xl font-bold">My Shop</span>
           </div>
         </Link>
         {/* Menu */}

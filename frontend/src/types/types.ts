@@ -1,10 +1,11 @@
-export type User = { 
-    name?: string; 
+export type User = {
+    name?: string;
     email: string;
-    password: string;
-    phone?: string | null;
-    avatar?: string | null; 
-    role?: string; 
-    token: string; 
-    isBanned: boolean;
+    phone?: string;
+    address?: string;
+    avatar?: string;
+    question?: string;
+    role?: string;
+    isBanned?: boolean;
+    orders?: []
 }

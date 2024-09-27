@@ -71,7 +71,7 @@ export const signup = async(req:Request, res:Response,next:NextFunction)=>{
         }
     }
 
-export const signin = TryCatch( 
+export const login = TryCatch( 
     async(req:Request,res:Response, next:NextFunction)=>{ 
         const {email,password} = req.body
         if(!email || !password)return next(appErr('email and password are required',400))
@@ -83,6 +83,20 @@ export const signin = TryCatch(
         if (!secretKey)return res.status(500).json({ error: 'Secret key is not defined' });
         const options: jwt.SignOptions = {expiresIn: '1h',algorithm: 'HS256'};
         const token = jwt.sign({id:user!._id},secretKey,options)
-        appRes(res,200,'','Login success!',{token})
+        appRes(res,200,'','Login success!',{ 
+            user:{ 
+                _id: user?._id,
+                name: user?.name,
+                email: user?.email,
+                phone: user?.phone,
+                address: user?.address,
+                avatar: user?.avatar,
+                question: user?.question,
+                role: user?.role,
+                isBanned: user?.isBanned,
+                orders: user?.orders
+            },
+            token,
+        })
     }
 )

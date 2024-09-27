@@ -5,7 +5,7 @@ import { User } from "../../../types/types";
 
 export const  userAPI = createApi({ 
     reducerPath: 'userAPI',
-    baseQuery:fetchBaseQuery({ 
+    baseQuery: fetchBaseQuery({ 
         baseUrl: `${import.meta.env.VITE_SERVER}/api/v1/auth/`,
         prepareHeaders: (headers, {getState})=>{
             const state = getState() as RootState; 
@@ -17,7 +17,7 @@ export const  userAPI = createApi({
     }),
     endpoints:(builder)=>({ 
 
-        signup: builder.mutation<MessageResponse, User>({ 
+        register: builder.mutation<MessageResponse, User>({ 
             query:(user)=>({ 
                 url: 'register',
                 method: 'POST',
@@ -26,7 +26,7 @@ export const  userAPI = createApi({
             
         }),
 
-        signin: builder.mutation<MessageResponse, User>({
+        login: builder.mutation<MessageResponse, User>({
             query: (user) => ({
               url: 'login',
               method: 'POST',
@@ -39,4 +39,4 @@ export const  userAPI = createApi({
 
 })
 
-export const {useSignupMutation, useSigninMutation} = userAPI
+export const {useLoginMutation,useRegisterMutation} = userAPI

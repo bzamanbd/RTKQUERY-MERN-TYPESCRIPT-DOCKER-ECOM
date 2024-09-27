@@ -9,7 +9,7 @@ interface BackendResponse{
 
 const initialState: UserReducerInitialState = { 
     user: null,
-    loading: true,
+    isLoading: true,
     token: null
 }
 
@@ -18,13 +18,14 @@ export const userReducer = createSlice({
     initialState, 
     reducers: { 
         userExist: (state, action: PayloadAction<BackendResponse>)=>{
-            state.loading=false;
+            state.isLoading=false;
             state.user = action.payload.user;
             state.token = action.payload.token;
+            console.log('state.user', state.user);
         },
 
         userNotExist: (state)=>{
-            state.loading=false;
+            state.isLoading=false;
             state.user = null;
             state.token = null;
         },

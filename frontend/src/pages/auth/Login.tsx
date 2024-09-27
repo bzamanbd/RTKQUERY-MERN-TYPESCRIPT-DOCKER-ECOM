@@ -1,12 +1,63 @@
-import { FC } from "react";
+import { ChangeEvent, FC, FormEvent, useState } from "react";
+import { useLoginMutation } from "../../services/redux/api/userApi";
+import toast from "react-hot-toast";
+import { userExist, userNotExist } from "../../services/redux/reducer/userReducer";
+import { useDispatch } from "react-redux";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-const Login: FC = () => {
+const Login: FC = () => { 
+  const [formData, setFormData] = useState({ email: '', password: ''});
+  const [login,{isLoading}] = useLoginMutation();
+  const dispatch = useDispatch();
+  const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{ 
+    const {name, value} = e.target;
+    console.log(name);
+    console.log(value);
+      
+    setFormData((prevFormData)=>({ 
+      ...prevFormData,
+      [name]: value || ""
+    }));
+  }
+  const handleSubmit = async(e:FormEvent)=>{ 
+    e.preventDefault();
+    try {
+      const result = await login(formData);
+      console.log("res====>", result); 
+      if("data" in result){ 
+        const userData = result.data?.data.user;
+        const token = result.data?.data.token;
+        if(userData && token){
+          toast.success('Login success');
+          localStorage.setItem('auth', JSON.stringify({user:userData, token}));
+          dispatch(userExist({user: userData, token})); 
+          setFormData({ email : '', password : ''});
+        }else{ 
+          toast.error('Invalid response data')
+        }
+      }else{
+        //if the response does not contain 'data'
+        const error = result.error as FetchBaseQueryError & {data?: {error?:string}};
+        if(error.data && error.data.error){
+          const message = error.data.error;
+          toast.error(message);
+        }else{ 
+          toast.error('An unexpected error occurred');
+        }
+        dispatch(userNotExist());
+      }
+      
+    } catch (err) { 
+      console.log("Error during submission:", err);
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
         <h2 className="text-2xl font-bold mb-6 text-center">Log in</h2>
 
-        <form>
+        <form onSubmit={handleSubmit}>
           {/* Email Input */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
@@ -15,8 +66,12 @@ const Login: FC = () => {
             <input
               id="email"
               type="email"
+              name="email"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
-              placeholder="you@example.com"
+              placeholder="you@example.com" 
+              autoComplete="email"
+              value={formData.email}
+              onChange={handleChange}
               required
             />
           </div>
@@ -29,8 +84,11 @@ const Login: FC = () => {
             <input
               id="password"
               type="password"
+              name="password"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
               placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange} 
               required
             />
           </div>
@@ -61,7 +119,7 @@ const Login: FC = () => {
               type="submit"
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Log in
+              {isLoading ? 'Logging in...' : 'Login'}
             </button>
           </div>
         </form>
