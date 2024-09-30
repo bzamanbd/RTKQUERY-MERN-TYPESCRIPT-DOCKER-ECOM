@@ -1,4 +1,4 @@
-import { User } from "./types";
+import { User } from "../vite-env";
 
 export interface UserReducerInitialState{ 
     user: User | null; 

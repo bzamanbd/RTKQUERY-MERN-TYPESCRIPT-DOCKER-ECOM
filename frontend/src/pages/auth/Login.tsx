@@ -4,11 +4,13 @@ import toast from "react-hot-toast";
 import { userExist, userNotExist } from "../../services/redux/reducer/userReducer";
 import { useDispatch } from "react-redux";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useNavigate } from "react-router-dom";
 
 const Login: FC = () => { 
   const [formData, setFormData] = useState({ email: '', password: ''});
   const [login,{isLoading}] = useLoginMutation();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); 
+  const navigate = useNavigate();
   const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{ 
     const {name, value} = e.target;
     console.log(name);
@@ -31,27 +33,32 @@ const Login: FC = () => {
           toast.success('Login success');
           localStorage.setItem('auth', JSON.stringify({user:userData, token}));
           dispatch(userExist({user: userData, token})); 
-          setFormData({ email : '', password : ''});
+          setFormData({ email: '', password: ''});
+          navigate(`/dashboard/${userData.role === 'admin'? 'admin' : 'user'}`);
         }else{ 
           toast.error('Invalid response data')
         }
       }else{
-        //if the response does not contain 'data'
-        const error = result.error as FetchBaseQueryError & {data?: {error?:string}};
-        if(error.data && error.data.error){
-          const message = error.data.error;
-          toast.error(message);
-        }else{ 
-          toast.error('An unexpected error occurred');
-        }
-        dispatch(userNotExist());
+        // if the response does not contain 'data' because of an error
+        // This is a FetchBaseQueryError
+        const err = result.error as FetchBaseQueryError & {data?: {error?:string}};
+        const errStatus = err.status; // e.g., 401 Unauthorized
+        let errMessage;
+        // Check if error.data is an object and has a message
+        if(typeof err.data === 'object' && 'message' in err.data){
+          errMessage = err.data.message; // Accessing message field
+          } else if(typeof err.data === 'object' && 'error' in err.data){
+            errMessage = err.data.error; // Accessing error field
+            } else if(typeof err.data === 'string'){
+              errMessage = err.data; // If it's just a string  
+              }
+              toast.error(`${errMessage} | status: ${errStatus}` as string || 'An unexpected error occurred');
+              dispatch(userNotExist());
       }
-      
     } catch (err) { 
       console.log("Error during submission:", err);
     }
   }
-
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
@@ -122,6 +129,7 @@ const Login: FC = () => {
               {isLoading ? 'Logging in...' : 'Login'}
             </button>
           </div>
+          {/* <pre>{JSON.stringify(formData, null, 4)}</pre> */}
         </form>
       </div>
     </div>

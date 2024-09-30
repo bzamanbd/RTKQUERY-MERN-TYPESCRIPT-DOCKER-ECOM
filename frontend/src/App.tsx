@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import RouterWrapper from './utils/RouterWrapper'
+import RouterWrapper from './router/RouterWrapper'
 
 const App: FC = ()=> {
   return (

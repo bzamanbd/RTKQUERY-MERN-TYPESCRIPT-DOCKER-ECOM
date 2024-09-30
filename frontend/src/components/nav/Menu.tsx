@@ -1,6 +1,12 @@
-import { Link, NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Link, NavLink} from "react-router-dom";
+import { RootState } from "../../services/redux/store";
+import LogoutButton from "../../pages/auth/LogoutButton";
 
 const Menu = () => {
+  const {user} = useSelector((state:RootState)=>state.userReducer);
+  console.log('User=====>',user);
+  
   return (
     <div className="bg-blue-700 shadow-lg ">
       <div className="container mx-auto flex justify-between items-center p-4">
@@ -44,10 +50,14 @@ const Menu = () => {
             </NavLink>
           </li>
 
-          <li>
-            <NavLink to="/dashboard" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`}>
+          <li> 
+            <NavLink to={`/dashboard/${user?.role === 'admin'? 'admin' : 'user'}`} className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`} >
               Dashboard
             </NavLink>
+          </li>
+
+          <li >
+            <LogoutButton />
           </li>
 
         </ul>

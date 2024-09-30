@@ -1,4 +1,10 @@
 import { ChangeEvent, FC, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import {useRegisterMutation } from '../../services/redux/api/userApi';
+import toast from 'react-hot-toast';
+import { userExist, userNotExist } from '../../services/redux/reducer/userReducer';
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useNavigate } from 'react-router-dom';
 
 const Register: FC = () => {
   const [formData, setFormData] = useState({
@@ -7,18 +13,65 @@ const Register: FC = () => {
     password: '',
     address: '',
     phone: '',
-    securityQuestion: '',
+    question: '',
     answer: '',
     avatar: '',
   });
-
+  const [register,{isLoading}] = useRegisterMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData); // You can handle the form submission logic here
+    try {
+      const result = await register(formData);
+      console.log("Res====>", result);
+      if("data" in result){ 
+        const userData = result.data?.data.user;
+        const token = result.data?.data.token;
+        if(userData){
+          toast.success('Login success');
+          localStorage.setItem('auth', JSON.stringify({user:userData, token}));
+          dispatch(userExist({user: userData, token:''})); 
+          setFormData({ 
+            name: '',
+            email: '',
+            password: '',
+            address: '',
+            phone: '',
+            question: '',
+            answer: '',
+            avatar: '',
+          });
+          navigate('/');
+        }else{ 
+          toast.error('Invalid response data')
+        }
+      }else{
+        // if the response does not contain 'data' because of an error
+        // This is a FetchBaseQueryError
+        const err = result.error as FetchBaseQueryError & {data?: {error?:string}};
+        const errStatus = err.status; // e.g., 401 Unauthorized
+        let errMessage;
+        // Check if error.data is an object and has a message
+        if(typeof err.data === 'object' && 'message' in err.data){
+          errMessage = err.data.message; // Accessing message field
+          } else if(typeof err.data === 'object' && 'error' in err.data){
+            errMessage = err.data.error; // Accessing error field
+            } else if(typeof err.data === 'string'){
+              errMessage = err.data; // If it's just a string  
+              }
+              toast.error(`${errMessage} | status: ${errStatus}` as string || 'An unexpected error occurred');
+              dispatch(userNotExist());
+      }
+      
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -111,9 +164,9 @@ const Register: FC = () => {
               Security Question
             </label>
             <select
-              id="securityQuestion"
-              name="securityQuestion"
-              value={formData.securityQuestion}
+              id="question"
+              name="question"
+              value={formData.question}
               onChange={handleChange}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
@@ -152,7 +205,7 @@ const Register: FC = () => {
               id="avatar"
               name="avatar"
               type="file"
-              onChange={(e) => setFormData({ ...formData, avatar: e.target.files![0].name })}
+              onChange={(e) => setFormData({ ...formData, avatar: e.target.files![0].name})}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
             />
           </div>
@@ -163,7 +216,7 @@ const Register: FC = () => {
               type="submit"
               className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
-              Register
+              {isLoading ? 'Registering...' : 'Register'}
             </button>
           </div>
 

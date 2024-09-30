@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserReducerInitialState } from "../../../types/reducer-types";
-import { User } from "../../../types/types";
+import { User } from "../../../vite-env";
 
 interface BackendResponse{ 
     user: User;
@@ -21,7 +21,7 @@ export const userReducer = createSlice({
             state.isLoading=false;
             state.user = action.payload.user;
             state.token = action.payload.token;
-            console.log('state.user', state.user);
+            // console.log('state.user', state.user);
         },
 
         userNotExist: (state)=>{
