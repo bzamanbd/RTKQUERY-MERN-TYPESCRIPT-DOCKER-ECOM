@@ -31,6 +31,11 @@ const Menu = () => {
               Shop
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/cart" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`}>
+              Cart
+            </NavLink>
+          </li>
           { 
             user? <></>
             :<li>
@@ -39,19 +44,15 @@ const Menu = () => {
             </NavLink>
           </li> 
           }
-          
 
-          <li>
-            <NavLink to="/cart" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`}>
-              Cart
-            </NavLink>
-          </li>
-
-          <li> 
-            <NavLink to={`/dashboard/${user?.role === 'admin'? 'admin' : 'user'}`} className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`} >
+          { 
+            user? <li> 
+              <NavLink to={`/dashboard/${user?.role === 'admin'? 'admin' : 'user'}`} className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`} >
               Dashboard
-            </NavLink>
-          </li>
+              </NavLink>
+              </li>
+            :<></> 
+          }
 
           <li >
             {user? 

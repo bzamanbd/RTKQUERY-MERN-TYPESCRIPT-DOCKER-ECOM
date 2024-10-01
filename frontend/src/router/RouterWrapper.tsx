@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { BrowserRouter,Routes, Route } from 'react-router-dom';
+import { BrowserRouter,Routes, Route} from 'react-router-dom';
 import Home from '../pages/Home';
 import Shop from '../pages/Shop';
 import Cart from '../pages/Cart';
@@ -19,6 +19,7 @@ import ReportsPage from '../pages/ReportsPage';
 import UserProfilePage from '../pages/user/Profile';
 import UserSettingsPage from '../pages/user/Settings';
 import UserOrdersPage from '../pages/user/Order';
+import CreateProduct from '../pages/admin/CreateProduct';
 
 const RouterWrapper: FC = () => {
   return (
@@ -51,6 +52,7 @@ const RouterWrapper: FC = () => {
         {/* routing of admin dashboard sidebar menu */}
         <Route path='/admin' element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}> 
           <Route path="users" element={<UsersPage />} />
+          <Route path="create-product" element={<CreateProduct />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="reports" element={<ReportsPage />} />
         </Route>
