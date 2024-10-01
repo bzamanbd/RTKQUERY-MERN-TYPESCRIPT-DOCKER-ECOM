@@ -16,6 +16,9 @@ import AdminDashboard from '../pages/admin/Dashboard';
 import UsersPage from '../pages/UsersPage';
 import ProductsPage from '../pages/ProductsPage';
 import ReportsPage from '../pages/ReportsPage';
+import UserProfilePage from '../pages/user/Profile';
+import UserSettingsPage from '../pages/user/Settings';
+import UserOrdersPage from '../pages/user/Order';
 
 const RouterWrapper: FC = () => {
   return (
@@ -33,6 +36,12 @@ const RouterWrapper: FC = () => {
         
         <Route path='/dashboard' element={<PrivateRoutes/>}> 
           <Route path='user' element={<PrimaryLayout>< UserDashboard/></PrimaryLayout>}/>
+        </Route>
+        {/* routing of user dashboard sidebar menu */}
+        <Route path='/user' element={<PrimaryLayout>< UserDashboard/></PrimaryLayout>}> 
+         <Route path="profile" element={<UserProfilePage />} />
+         <Route path="orders" element={<UserOrdersPage />} />
+         <Route path="settings" element={<UserSettingsPage />} />
         </Route>
 
         <Route path='/dashboard' element={<AdminRoute/>}> 

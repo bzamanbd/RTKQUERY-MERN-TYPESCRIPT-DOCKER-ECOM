@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { NavLink } from "react-router-dom"
 
-const AdminDashboardSideMenu:FC = () => {
+const AdminMenu:FC = () => {
     return <> 
         <nav>
           <ul>
@@ -20,4 +20,4 @@ const AdminDashboardSideMenu:FC = () => {
     </>
 }
 
-export default AdminDashboardSideMenu;
+export default AdminMenu;

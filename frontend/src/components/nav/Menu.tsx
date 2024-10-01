@@ -6,7 +6,6 @@ import LogoutButton from "../../pages/auth/LogoutButton";
 const Menu = () => {
   const {user} = useSelector((state:RootState)=>state.userReducer);
   console.log('User=====>',user);
-  
   return (
     <div className="bg-blue-700 shadow-lg ">
       <div className="container mx-auto flex justify-between items-center p-4">
@@ -32,17 +31,15 @@ const Menu = () => {
               Shop
             </NavLink>
           </li>
-          <li>
+          { 
+            user? <></>
+            :<li>
             <NavLink to="/register" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`} >
               Register
             </NavLink>
-          </li>
-
-          <li>
-            <NavLink to="/login" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`} >
-              Login
-            </NavLink>
-          </li>
+          </li> 
+          }
+          
 
           <li>
             <NavLink to="/cart" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`}>
@@ -57,7 +54,11 @@ const Menu = () => {
           </li>
 
           <li >
+            {user? 
             <LogoutButton />
+            :<NavLink to="/login" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`} >
+              login
+            </NavLink>} 
           </li>
 
         </ul>

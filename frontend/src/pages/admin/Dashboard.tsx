@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Outlet } from 'react-router-dom';
-import AdminDashboardSideMenu from '../../components/nav/AdminDashboardSideMenu';
+import AdminMenu from '../../components/nav/AdminMenu';
 
 const AdminDashboard: FC = () => {
   return (
@@ -8,7 +8,7 @@ const AdminDashboard: FC = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-gray-800 text-white p-5">
         <h2 className="text-xl font-bold mb-4">Admin Dashboard</h2>
-        <AdminDashboardSideMenu/>        
+        <AdminMenu/>        
       </aside>
 
       {/* Main content area */}
