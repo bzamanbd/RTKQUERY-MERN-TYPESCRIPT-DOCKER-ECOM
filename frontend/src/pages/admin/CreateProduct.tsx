@@ -1,13 +1,12 @@
 
 import {FC, FormEvent, useState } from 'react';
-// import { useSelector } from 'react-redux';
-// import { RootState } from '../../services/redux/store';
 import { useCreateProductMutation } from '../../services/redux/api/productApi';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import { MessageResponse } from '../../types/api-types';
 
 const CreateProduct: FC = () => {
-  // const {user} = useSelector((state:RootState)=>state.userReducer);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [category, setCategory] = useState<string>("");
@@ -15,23 +14,9 @@ const CreateProduct: FC = () => {
   const [stock, setStock] = useState<number>(1);
   const [photos, setPhotos] = useState<FileList | null>(null);
   const [videos, setVideos] = useState<FileList | null>(null);
-  const [createProduct, { isLoading, isSuccess, isError }] = useCreateProductMutation();
-
+  const [createProduct, {isLoading}] = useCreateProductMutation();
   const navigate = useNavigate();
   
-  // File handlers for photos and videos
-  // const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     setPhotos(e.target.files);
-  //   }
-  // };
-
-  // const handleVideoChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     setVideos(e.target.files);
-  //   }
-  // };
-
   const handleSubmit = async(e:FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
     const formData = new FormData();
@@ -45,51 +30,17 @@ const CreateProduct: FC = () => {
     if (photos) { Array.from(photos).forEach(photo=>formData.append(`photos`, photo))}
     // Handle videos separately
     if (videos) { Array.from(videos).forEach(video=>formData.append(`videos`, video))}
-    try {
-      await createProduct(formData); 
-      toast.success('Product created successfully!');
-      navigate("/dashboard/admin/products");
-    } catch (err) {
-      console.log('Failed to create product:', err);
-      toast.error('Failed to create product');
+
+    const res = await createProduct(formData); 
+    if ("data" in res && res.data) {
+      toast.success(res.data.message);
+      navigate("/admin/products");
+    } else {
+      const error = res.error as FetchBaseQueryError;
+      const messageResponse = error.data as MessageResponse;
+      toast.error(messageResponse.message); 
     }
-    
-    // if("data" in res && res.data){ 
-    //   toast.success(res.data.data.message);
-    //   navigate("/dashboard/admin/products")
-    // }else{ 
-    //   const error = res.error as FetchBaseQueryError; 
-    //   const messageResponse = error.data as MessageResponse;
-    //   toast.error(messageResponse.message);
-    // }
-    // if(res) toast.success("Product created successfully");
-    
   }
-
-  // // Function called when the form is submitted
-  // const onSubmit: SubmitHandler<IFormInput> = (data) => {
-  //   // Handle form fields (excluding files)
-  //   console.log('Form Data:', data);
-
-  //   // Handle photos separately
-  //   if (photos) {
-  //     for (let i = 0; i < photos.length; i++) {
-  //       console.log('Photo File:', photos[i]);
-  //       // You can append to FormData or upload the file here
-  //     }
-  //   }
-
-  //   // Handle videos separately
-  //   if (videos) {
-  //     for (let i = 0; i < videos.length; i++) {
-  //       console.log('Video File:', videos[i]);
-  //       // You can append to FormData or upload the file here
-  //     }
-  //   }
-
-  //   // Proceed with submission (e.g., send data to server)
-  // };
-
   return (
     <div className="max-w-2xl  p-8 ">
       <h2 className="text-2xl font-semibold mb-6">Create New Product</h2>
@@ -201,8 +152,6 @@ const CreateProduct: FC = () => {
         >
           Create Product
         </button>
-        {isSuccess && <p className="text-green-500">Product created successfully!</p>}
-        {isError && <p className="text-red-500">Failed to create product.</p>}
       </form>
     </div>
   );
