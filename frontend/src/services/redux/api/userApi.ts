@@ -17,7 +17,6 @@ export const  userAPI = createApi({
         }
     }),
     endpoints:(builder)=>({ 
-
         register: builder.mutation<MessageResponse, User>({ 
             query:(user)=>({ 
                 url: 'register',
@@ -32,8 +31,7 @@ export const  userAPI = createApi({
               url: 'login',
               method: 'POST',
               body: user,
-            }),
-            
+            }),    
           }),
 
     }), 

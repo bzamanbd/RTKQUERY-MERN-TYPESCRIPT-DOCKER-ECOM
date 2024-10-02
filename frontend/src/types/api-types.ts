@@ -1,4 +1,4 @@
-import { User } from "../vite-env";
+import { Product, User } from "../vite-env";
 
 export type MessageResponse = { 
     message: string;
@@ -6,4 +6,19 @@ export type MessageResponse = {
         user: User; 
         token: string;
     };
+}
+
+export type ProductResponse = { 
+    success: string; 
+    message: string; 
+    data:{ 
+        product: Product;
+    }
+}
+export type AllProductsResponse = { 
+    success: string; 
+    message: string; 
+    data:{ 
+        products: Product[];
+    }
 }

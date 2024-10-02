@@ -1,5 +1,16 @@
 /// <reference types="vite/client" />
 
+import { Product } from './../../backend/src/models/product';
+
+interface ImportMetaEnv {
+    readonly VITE_SERVER: string;
+    // Add other environment variables here    
+}
+  
+interface ImportMeta {
+    readonly env: ImportMetaEnv;
+}
+
 export type User = {
     name?: string;
     email?: string;
@@ -12,4 +23,16 @@ export type User = {
     isBanned?: boolean;
     orders?: []
 }
+
+
+export type Product = {
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    stock: number;
+    photos: [];
+    videos: [];
+    _id: string;
+  }
 
