@@ -46,15 +46,15 @@ const RouterWrapper: FC = () => {
         </Route>
 
         <Route path='/dashboard' element={<AdminRoute/>}> 
-          <Route path='admin' element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}/>  
+          <Route path='admin' element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}/>
         </Route>
 
         {/* routing of admin dashboard sidebar menu */}
         <Route path='/admin' element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}> 
-          <Route path="users" element={<UsersPage />} />
-          <Route path="create-product" element={<CreateProduct />} />
-          <Route path="products" element={<ProductsPage />} />
-          <Route path="reports" element={<ReportsPage />} />
+        <Route path="products" element={<ProductsPage />} /> 
+        <Route path="create-product" element={<CreateProduct />} />
+        <Route path="users" element={<UsersPage />} />
+        <Route path="reports" element={<ReportsPage />} />
         </Route>
 
       </Routes>
