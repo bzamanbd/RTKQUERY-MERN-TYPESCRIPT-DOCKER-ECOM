@@ -16,6 +16,7 @@ export const  productAPI = createApi({
             return headers;
         }
     }),
+    tagTypes: ['Products'], // Add a tag for products
     endpoints:(builder)=>({ 
 
         latest:builder.query<AllProductsResponse, string>({ 
@@ -24,6 +25,7 @@ export const  productAPI = createApi({
 
         allProducts:builder.query<AllProductsResponse, string>({ 
             query: ()=>"", 
+            providesTags: ['Products'], // Tag for products query
         }),
 
         ProductDetails:builder.query<ProductResponse, string>({ 
@@ -35,8 +37,9 @@ export const  productAPI = createApi({
             query: (formData)=>({ 
                 url:"new",
                 method: "POST",
-                body: formData
-            })
+                body: formData,
+            }),
+            invalidatesTags: ['Products'], // Invalidate the products cache
         }),
 
         updateProduct:builder.mutation({ 

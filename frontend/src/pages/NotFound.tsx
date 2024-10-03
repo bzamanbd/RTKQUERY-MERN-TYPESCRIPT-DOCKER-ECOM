@@ -2,8 +2,8 @@ import { FC } from "react"
 
 const NotFound: FC = () => {
   return (
-    <div>
-      <h2>this is not found page 404</h2>
+    <div className="flex justify-center items-center h-screen">
+      <h1 className="text-4xl font-bold">404 | Page Not Found</h1>
     </div>
   )
 }

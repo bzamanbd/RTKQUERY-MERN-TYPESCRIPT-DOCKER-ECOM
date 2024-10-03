@@ -31,8 +31,8 @@ export type Product = {
     price: number;
     category: string;
     stock: number;
-    photos: [];
-    videos: [];
+    photos: string[];
+    videos: string[];
     _id: string;
   }
 
