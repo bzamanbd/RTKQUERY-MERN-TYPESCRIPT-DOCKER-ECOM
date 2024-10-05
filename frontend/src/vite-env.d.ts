@@ -1,3 +1,5 @@
+/// <reference types="vite-plugin-svgr/client" />
+
 /// <reference types="vite/client" />
 
 import { Product } from './../../backend/src/models/product';
@@ -24,8 +26,10 @@ export type User = {
     orders?: []
 }
 
+// Types.ObjectId = new Types.ObjectId();
 
 export type Product = {
+    _id: string;
     name: string;
     description: string;
     price: number;
@@ -33,6 +37,8 @@ export type Product = {
     stock: number;
     photos: string[];
     videos: string[];
-    _id: string;
-  }
+}
+
+
+
 

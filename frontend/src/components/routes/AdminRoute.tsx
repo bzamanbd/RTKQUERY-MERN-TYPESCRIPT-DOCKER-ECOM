@@ -13,7 +13,7 @@ const AdminRoute: FC = () => {
     }, [token,user])
     if(user === null)return <Loading/>;
     
-    return ok? <Outlet/>  :<Loading/>;
+    return ok? <Outlet/> :<Loading/>;
 }
 
 export default AdminRoute

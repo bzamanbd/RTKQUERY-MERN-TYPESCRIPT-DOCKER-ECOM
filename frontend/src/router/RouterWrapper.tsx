@@ -13,13 +13,14 @@ import PrivateRoutes from '../components/routes/PrivateRoutes';
 import UserDashboard from '../pages/user/Dashboard';
 import AdminRoute from '../components/routes/AdminRoute';
 import AdminDashboard from '../pages/admin/Dashboard';
-import UsersPage from '../pages/UsersPage';
-import ProductsPage from '../pages/ProductsPage';
-import ReportsPage from '../pages/ReportsPage';
 import UserProfilePage from '../pages/user/Profile';
 import UserSettingsPage from '../pages/user/Settings';
 import UserOrdersPage from '../pages/user/Order';
+import Products from '../pages/admin/Products';
+import Users from '../pages/admin/UsersPage';
+import SingleProduct from '../pages/admin/SingleProduct';
 import CreateProduct from '../pages/admin/CreateProduct';
+import Reports from '../pages/admin/ReportsPage';
 
 const RouterWrapper: FC = () => {
   return (
@@ -36,27 +37,24 @@ const RouterWrapper: FC = () => {
         <Route path="*" element={<PrimaryLayout><NotFound /></PrimaryLayout>} />
         
         <Route path='/dashboard' element={<PrivateRoutes/>}> 
-          <Route path='user' element={<PrimaryLayout>< UserDashboard/></PrimaryLayout>}/>
-        </Route>
-        {/* routing of user dashboard sidebar menu */}
-        <Route path='/user' element={<PrimaryLayout>< UserDashboard/></PrimaryLayout>}> 
-         <Route path="profile" element={<UserProfilePage />} />
-         <Route path="orders" element={<UserOrdersPage />} />
-         <Route path="settings" element={<UserSettingsPage />} />
+          <Route path="user" element={<PrimaryLayout>< UserDashboard/></PrimaryLayout>}>
+            {/* Nested routes within UserDashboard */}
+            <Route path="profile" element={<UserProfilePage />} />
+            <Route path="orders" element={<UserOrdersPage />} />
+            <Route path="settings" element={<UserSettingsPage />} />
+          </Route> 
         </Route>
 
         <Route path='/dashboard' element={<AdminRoute/>}> 
-          <Route path='admin' element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}/>
+          <Route path="admin" element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}>
+            {/* Nested routes within AdminDashboard */}
+            <Route path="products" element={<Products />} />
+            <Route path="create-product" element={<CreateProduct />} />
+            <Route path="product/:id" element={<SingleProduct />} /> 
+            <Route path="users" element={<Users />} />
+            <Route path="reports" element={<Reports />} />
+          </Route>
         </Route>
-
-        {/* routing of admin dashboard sidebar menu */}
-        <Route path='/admin' element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}> 
-        <Route path="products" element={<ProductsPage />} /> 
-        <Route path="create-product" element={<CreateProduct />} />
-        <Route path="users" element={<UsersPage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        </Route>
-
       </Routes>
     </BrowserRouter>
   );

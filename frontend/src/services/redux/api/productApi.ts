@@ -28,8 +28,8 @@ export const  productAPI = createApi({
             providesTags: ['Products'], // Tag for products query
         }),
 
-        ProductDetails:builder.query<ProductResponse, string>({ 
-            query: (id)=>id, 
+        productDetails:builder.query<ProductResponse, string>({ 
+            query: (id:string)=>id,
         }),
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,20 +41,28 @@ export const  productAPI = createApi({
             }),
             invalidatesTags: ['Products'], // Invalidate the products cache
         }),
-
+        
         updateProduct:builder.mutation({ 
-            query: ({id, formData})=>({ 
-                url:id,
-                method:"PUT",
-                body:formData
-            }) 
+            query:({productId, formData})=>{ 
+                
+                return{ 
+                    url:`${productId}`,
+                    method:'PUT',
+                    body: formData,
+                }
+            },
+            invalidatesTags: ['Products'], // Invalidate the products cache
         }),
 
         deleteProduct:builder.mutation({ 
-            query: ({id})=>({ 
-                url:id,
-                method:"DELETE"
-            }) 
+            query: ({productId})=>{ 
+                console.log('productId to Delete===>',productId);
+                return{ 
+                    url:`${productId}`,
+                    method:"DELETE"
+                }
+            },
+            invalidatesTags: ['Products'], // Invalidate the products cache
         }),
 
     }), 

@@ -1,16 +1,15 @@
 import { FC } from 'react';
 import { Link } from 'react-router-dom'; // For action buttons like Edit/Delete
-import { useAllProductsQuery } from '../services/redux/api/productApi';
-import { Product } from '../vite-env';
-import { server } from '../services/redux/store';
+import { Product } from '../../vite-env';
+import { useAllProductsQuery } from '../../services/redux/api/productApi';
+import { server } from '../../services/redux/store';
+import actionIcon from '../../assets/icons/action-visibility.svg';
 
-const ProductsPage: FC = () => {
+const Products: FC = () => {
   const { data, isLoading, isError } = useAllProductsQuery("");
-
   if (isLoading) return <div>Loading...</div>;
   if (isError || !data || !data.data.products) return <div>Error fetching products</div>; 
   const products:Product[] = data.data.products;
-
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-200">
@@ -35,9 +34,9 @@ const ProductsPage: FC = () => {
               <td className="px-4 py-2">{product.stock}</td>
               <td className="px-4 py-2">{product.category}</td>
               <td className="px-4 py-2">
-                <Link to={`/edit-product/${product._id}`} className="text-blue-500 hover:underline">View</Link>
-                <Link to={`/edit-product/${product._id}`} className="mx-4 text-blue-500 hover:underline">Edit</Link>
-                <button className=" text-red-500 hover:underline">Delete</button>
+                <Link to={`/dashboard/admin/product/${product._id}`} className="text-blue-500 hover:underline">
+                <img src={actionIcon} alt="action-icon"/>
+                </Link>
               </td>
             </tr>
           ))}
@@ -47,4 +46,4 @@ const ProductsPage: FC = () => {
   );
 };
 
-export default ProductsPage;
+export default Products;

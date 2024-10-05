@@ -16,6 +16,7 @@ const CreateProduct: FC = () => {
   const [photoError, setPhotoError] = useState<string | null>(null); // For storing error messages related to photos
   const [videoError, setVideoError] = useState<string | null>(null); // For storing error messages related to videos
   const [createProduct, {isLoading}] = useCreateProductMutation();
+  
   // Handle photos addition
   const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB in bytes
   const handlePhotoChange = (e:ChangeEvent<HTMLInputElement>) => {
@@ -238,7 +239,7 @@ const CreateProduct: FC = () => {
           onChange={handleVideoChange}
           disabled={videos.length >= 1}
         />
-         {videoError && <p className="text-red-500">{videoError}</p>}
+        {videoError && <p className="text-red-500">{videoError}</p>}
         {videos.length > 0 && (
           <div className="mt-4">
             <p className="block text-sm font-medium text-gray-700">Video Preview:</p>

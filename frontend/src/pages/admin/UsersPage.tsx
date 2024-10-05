@@ -1,5 +1,5 @@
 
-const UsersPage = () => {
+const Users = () => {
   return (
     <div>
       this is users page
@@ -7,4 +7,4 @@ const UsersPage = () => {
   )
 }
 
-export default UsersPage
+export default Users
