@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { BrowserRouter,Routes, Route} from 'react-router-dom';
-import Home from '../pages/Home';
-import Shop from '../pages/Shop';
+import Home from '../pages/Home/Home';
+import Shop from '../pages/Shop/Shop';
 import Cart from '../pages/Cart';
 import NotFound from '../pages/NotFound';
 import Login from '../pages/auth/Login';

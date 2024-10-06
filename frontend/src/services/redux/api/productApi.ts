@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
-import { AllProductsResponse, ProductResponse } from "../../../types/api-types";
+import { AllProductsResponse, CategoryResponse, ProductResponse } from "../../../types/api-types";
 
 export const  productAPI = createApi({ 
     reducerPath: 'productAPI',
@@ -20,7 +20,8 @@ export const  productAPI = createApi({
     endpoints:(builder)=>({ 
 
         latest:builder.query<AllProductsResponse, string>({ 
-            query: ()=>"latest", 
+            query: ()=>"latest",
+            providesTags: ['Products'], // Tag for products query
         }),
 
         allProducts:builder.query<AllProductsResponse, string>({ 
@@ -30,6 +31,12 @@ export const  productAPI = createApi({
 
         productDetails:builder.query<ProductResponse, string>({ 
             query: (id:string)=>id,
+            providesTags: ['Products'], // Tag for products query
+        }),
+        
+        category:builder.query<CategoryResponse, string>({ 
+            query: ()=>"cats",
+            providesTags: ['Products'], // Tag for products query
         }),
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,6 +80,7 @@ export const {
     useLatestQuery,
     useAllProductsQuery,
     useProductDetailsQuery,
+    useCategoryQuery,
     useCreateProductMutation,
     useUpdateProductMutation,
     useDeleteProductMutation

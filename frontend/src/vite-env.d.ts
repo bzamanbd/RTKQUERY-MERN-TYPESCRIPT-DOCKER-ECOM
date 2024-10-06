@@ -26,8 +26,6 @@ export type User = {
     orders?: []
 }
 
-// Types.ObjectId = new Types.ObjectId();
-
 export type Product = {
     _id: string;
     name: string;

@@ -15,6 +15,15 @@ export type ProductResponse = {
         product: Product;
     }
 }
+
+export type CategoryResponse = { 
+    success: string; 
+    message: string; 
+    data:{ 
+        categories: string[];
+    }
+}
+
 export type AllProductsResponse = { 
     success: string; 
     message: string; 
