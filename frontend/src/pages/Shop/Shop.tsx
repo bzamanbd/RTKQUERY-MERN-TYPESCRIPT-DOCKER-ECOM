@@ -1,13 +1,14 @@
 import { FC, useState } from "react";
 import { useCategoryQuery, useSearchProductsQuery } from "../../services/redux/api/productApi";
 import toast from "react-hot-toast";
-import { server } from "../../services/redux/store";
+import { RootState, server } from "../../services/redux/store";
 import { CartItem } from "../../types/reducer-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../services/redux/reducer/cartReducer";
 
 const ShopPage: FC = () => {
-  const dispatch =  useDispatch();  
+  const dispatch =  useDispatch();
+  const cartItems = useSelector((state: RootState) => state.cartReducer.items);  
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("");
   const [maxPrice, setMaxPrice] = useState(10000);
@@ -22,11 +23,16 @@ const ShopPage: FC = () => {
   if(categoryIsError)return toast.error(categoryResponse!.message);
   if(searchProductIsError)return toast.error(searchData!.message);
   
-  const addToCartHandler = (cartItem:CartItem)=>{ 
-    if(cartItem.stock<1) return toast.error('Out of  stock');
-    dispatch(addToCart(cartItem));
-    toast.success('Item added to cart');
-    console.log('CartItem====>', cartItem);
+  const addToCartHandler = (newCartItem:CartItem)=>{ 
+    if(newCartItem.stock<1) return toast.error('Out of  stock');
+    const isItemAlreadyInCart = cartItems.some((item) => item.productId === newCartItem.productId); 
+    if (isItemAlreadyInCart) {
+      toast.error('Item already in cart');
+    } else {
+      dispatch(addToCart(newCartItem));
+      toast.success('Item added to cart');
+      console.log('CartItem====>', newCartItem);
+    }
   }
   
 

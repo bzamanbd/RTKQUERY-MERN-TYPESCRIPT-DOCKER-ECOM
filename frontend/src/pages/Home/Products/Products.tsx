@@ -1,24 +1,30 @@
 import { FC } from "react"
 import { useLatestQuery } from "../../../services/redux/api/productApi"
 import { Product } from "../../../vite-env";
-import { server } from "../../../services/redux/store";
+import { RootState, server } from "../../../services/redux/store";
 import { CartItem } from "../../../types/reducer-types";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector} from "react-redux";
 import { addToCart } from "../../../services/redux/reducer/cartReducer";
 
 const Products: FC = () => {
   const dispatch = useDispatch();
+  const cartItems = useSelector((state: RootState) => state.cartReducer.items);
   const {data, isLoading, isError} = useLatestQuery(""); 
   if(isLoading)return <div>Loading.....</div>
   if(isError || !data || !data.data.products )return <div>Error occurred fetching data </div>
   const products:Product[] = data.data.products;
 
-  const addToCartHandler = (cartItem:CartItem)=>{ 
-    if(cartItem.stock<1) return toast.error('Out of  stock');
-    dispatch(addToCart(cartItem));
-    toast.success('Item added to cart');
-    console.log('CartItem====>', cartItem);
+  const addToCartHandler = (newCartItem:CartItem)=>{ 
+    if(newCartItem.stock<1) return toast.error('Out of  stock');
+    const isItemAlreadyInCart = cartItems.some((item) => item.productId === newCartItem.productId); 
+    if (isItemAlreadyInCart) {
+      toast.error('Item already in cart');
+    } else {
+      dispatch(addToCart(newCartItem));
+      toast.success('Item added to cart');
+      console.log('CartItem====>', newCartItem);
+    }
   }
 
   return (
