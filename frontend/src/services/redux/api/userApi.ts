@@ -2,7 +2,6 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 import { MessageResponse } from "../../../types/api-types";
 import { User } from "../../../vite-env";
-// import { User } from "../../../types/types";
 
 export const  userAPI = createApi({ 
     reducerPath: 'userAPI',
@@ -25,7 +24,7 @@ export const  userAPI = createApi({
             }),
             
         }),
-
+        
         login: builder.mutation<MessageResponse, User>({
             query: (user) => ({
               url: 'login',
@@ -33,7 +32,6 @@ export const  userAPI = createApi({
               body: user,
             }),    
           }),
-
     }), 
 
 })

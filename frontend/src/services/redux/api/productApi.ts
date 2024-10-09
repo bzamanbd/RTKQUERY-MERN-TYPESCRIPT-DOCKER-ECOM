@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 import { AllProductsResponse, CategoryResponse, ProductResponse } from "../../../types/api-types";
-
+import { SearchProductRequest, SearchProductResponse } from "../../../vite-env";
 export const  productAPI = createApi({ 
     reducerPath: 'productAPI',
     baseQuery: fetchBaseQuery({ 
@@ -37,6 +37,16 @@ export const  productAPI = createApi({
         category:builder.query<CategoryResponse, string>({ 
             query: ()=>"cats",
             providesTags: ['Products'], // Tag for products query
+        }),
+
+        searchProducts:builder.query<SearchProductResponse, SearchProductRequest>({ 
+            query:({search, sort, category, price, page})=>{
+                let base = `all?search=${search}&page=${page}`;
+                if(price) base +=`&price=${price}`;
+                if(sort) base +=`&sort=${sort}`;
+                if(category) base +=`&category=${category}`;
+                return base;
+             },
         }),
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,6 +91,7 @@ export const {
     useAllProductsQuery,
     useProductDetailsQuery,
     useCategoryQuery,
+    useSearchProductsQuery,
     useCreateProductMutation,
     useUpdateProductMutation,
     useDeleteProductMutation

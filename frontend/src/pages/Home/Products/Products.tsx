@@ -2,12 +2,24 @@ import { FC } from "react"
 import { useLatestQuery } from "../../../services/redux/api/productApi"
 import { Product } from "../../../vite-env";
 import { server } from "../../../services/redux/store";
+import { CartItem } from "../../../types/reducer-types";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../../services/redux/reducer/cartReducer";
 
 const Products: FC = () => {
+  const dispatch = useDispatch();
   const {data, isLoading, isError} = useLatestQuery(""); 
   if(isLoading)return <div>Loading.....</div>
   if(isError || !data || !data.data.products )return <div>Error occurred fetching data </div>
   const products:Product[] = data.data.products;
+
+  const addToCartHandler = (cartItem:CartItem)=>{ 
+    if(cartItem.stock<1) return toast.error('Out of  stock');
+    dispatch(addToCart(cartItem));
+    toast.success('Item added to cart');
+    console.log('CartItem====>', cartItem);
+  }
 
   return (
     <section className="products-section py-12">
@@ -28,7 +40,17 @@ const Products: FC = () => {
                 </div>
                 
                 {/* Add to Cart Button (Hidden by Default, Shown on Hover) */}
-                <button className="absolute top-[6rem] left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+                <button className="absolute top-[6rem] left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+                onClick={()=>addToCartHandler({
+                  productId:product._id, 
+                  name:product.name, 
+                  photo:product.photos[0],
+                  stock:product.stock, 
+                  quantity:1,
+                  price:product.price
+                })}
+                >
+                
                 Add to Cart
                 </button>
 

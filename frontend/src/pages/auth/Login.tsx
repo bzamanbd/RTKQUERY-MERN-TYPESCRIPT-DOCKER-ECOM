@@ -32,7 +32,7 @@ const Login: FC = () => {
         if(userData && token){
           toast.success('Login success');
           localStorage.setItem('auth', JSON.stringify({user:userData, token}));
-          dispatch(userExist({user: userData, token})); 
+          dispatch(userExist({user: userData, token}));
           setFormData({ email: '', password: ''});
           navigate(`/dashboard/${userData.role === 'admin'? 'admin' : 'user'}`);
         }else{ 

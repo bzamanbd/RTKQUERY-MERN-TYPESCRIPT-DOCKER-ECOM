@@ -2,10 +2,15 @@ import { useSelector } from "react-redux";
 import { Link, NavLink} from "react-router-dom";
 import { RootState } from "../../services/redux/store";
 import LogoutButton from "../../pages/auth/LogoutButton";
+import {Badge} from "@nextui-org/badge";
+import { FaShoppingCart } from "react-icons/fa";
 
 const Menu = () => {
-  const {user} = useSelector((state:RootState)=>state.userReducer);
-  console.log('User=====>',user);
+  const {user} = useSelector((state:RootState)=>state.userReducer); 
+  const cartItems = useSelector((state: RootState) => state.cartReducer.items);
+  
+  console.log('User=====>',user); 
+  
   return (
     <div className="bg-blue-700 shadow-lg ">
       <div className="container mx-auto flex justify-between items-center p-4">
@@ -33,7 +38,9 @@ const Menu = () => {
           </li>
           <li>
             <NavLink to="/cart" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-200 rounded-md' : 'text-gray-300'}`}>
-              Cart
+              <Badge content={cartItems.length>=1? cartItems.length : 0} size="sm" color="danger" > 
+              <FaShoppingCart className="text-gray-300 text-xl"/>
+              </Badge>
             </NavLink>
           </li>
           { 

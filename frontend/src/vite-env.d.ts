@@ -37,6 +37,23 @@ export type Product = {
     videos: string[];
 }
 
+export type SearchProductRequest = { 
+    search?:string,
+    price?:number,
+    category?:string,
+    sort?:string,
+    page?:number
+};
+
+export type SearchProductResponse = { 
+    success: string; 
+    message: string; 
+    data: {
+        products: Product[],
+        totalPage: number
+    }
+};
+
 
 
 

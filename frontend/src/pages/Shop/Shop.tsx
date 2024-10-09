@@ -1,6 +1,35 @@
-import { FC } from "react";
+import { FC, useState } from "react";
+import { useCategoryQuery, useSearchProductsQuery } from "../../services/redux/api/productApi";
+import toast from "react-hot-toast";
+import { server } from "../../services/redux/store";
+import { CartItem } from "../../types/reducer-types";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../services/redux/reducer/cartReducer";
 
 const ShopPage: FC = () => {
+  const dispatch =  useDispatch();  
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("");
+  const [maxPrice, setMaxPrice] = useState(10000);
+  const [category, setCategory] = useState("");
+  const [page, setPage] = useState(1);
+  const {data:categoryResponse, isLoading:loadingCategories, isError:categoryIsError} = useCategoryQuery(""); 
+  const {data:searchData, isLoading:searchProductsLoading,isError:searchProductIsError} = useSearchProductsQuery({
+    search, sort, price:maxPrice, category, page 
+  });
+  const isPrevPage = page > 1; 
+  const isNextPage = page < 4;
+  if(categoryIsError)return toast.error(categoryResponse!.message);
+  if(searchProductIsError)return toast.error(searchData!.message);
+  
+  const addToCartHandler = (cartItem:CartItem)=>{ 
+    if(cartItem.stock<1) return toast.error('Out of  stock');
+    dispatch(addToCart(cartItem));
+    toast.success('Item added to cart');
+    console.log('CartItem====>', cartItem);
+  }
+  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex">
@@ -8,76 +37,61 @@ const ShopPage: FC = () => {
         <aside className="w-1/4 bg-white p-4 shadow-md rounded-lg">
           {/* Search Bar */}
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">Search Products</h2>
+            {/* <h2 className="text-xl font-semibold mb-3">Search Products</h2> */}
+            <label className="block text-sm font-medium text-gray-600" >Search Products</label>
             <input
               type="text"
               placeholder="Search..."
+              value={search}
+              onChange={(e)=>setSearch(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
 
           {/* Sort by Price */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">Sort by Price</h2>
-            <ul className="space-y-2">
-              <li>
-                <label className="flex items-center">
-                  <input type="radio" name="sortPrice" className="mr-2" />
-                  Low to High
-                </label>
-              </li>
-              <li>
-                <label className="flex items-center">
-                  <input type="radio" name="sortPrice" className="mr-2" />
-                  High to Low
-                </label>
-              </li>
-            </ul>
+          <div className="mb-6"> 
+            <label className="block text-sm font-medium text-gray-600" >Sort By:</label>
+              <select className="mt-1 p-2 border rounded w-full"
+              value={sort} 
+              onChange={(e)=>setSort(e.target.value)}
+              >
+                <option value="">None</option> 
+                <option value="asc">Price (Low to High)</option> 
+                <option value="dsc">Price (High to Low)</option> 
+              </select>
+
           </div>
 
           {/* Sort by Category */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">Sort by Category</h2>
-            <ul className="space-y-2">
-              <li>
-                <label className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
-                  Electronics
-                </label>
-              </li>
-              <li>
-                <label className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
-                  Clothing
-                </label>
-              </li>
-              <li>
-                <label className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
-                  Home Appliances
-                </label>
-              </li>
-              <li>
-                <label className="flex items-center">
-                  <input type="checkbox" className="mr-2" />
-                  Sports Equipment
-                </label>
-              </li>
-            </ul>
-          </div>
+          <div className="mb-6"> 
+            <label className="block text-sm font-medium text-gray-600" >Category:</label>
+              <select className="mt-1 p-2 border rounded w-full"
+              value={category} 
+              onChange={(e)=>setCategory(e.target.value)}
+              >
+                <option value="">All</option> 
+                { 
+                  !loadingCategories && categoryResponse?.data.categories.map((i)=>( 
+                    <option key={i} value={i}>{i.toUpperCase()}</option>
+                  ))
+                }
+              </select>
 
+          </div>
+          
           {/* Price Range Slider */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">Price Range</h2>
-            <input
-              type="range"
-              min="0"
-              max="1000"
-              className="w-full"
-            />
-            <div className="flex justify-between text-gray-600 mt-2">
-              <span>$0</span>
-              <span>$1000</span>
+          <div>
+            <label className="block text-sm font-medium text-gray-600" >Price Range:</label>
+            <div className="flex items-center space-x-2"> 
+              <span className="text-xs">Max:{maxPrice || ""}</span>
+              <input type="range" 
+                min={100} 
+                max={10000} 
+                value={maxPrice} 
+                onChange={(e)=> setMaxPrice(Number(e.target.value))}
+                className="flex-1"
+              />
+              <span className="text-xs">${maxPrice}</span>
             </div>
           </div>
         </aside>
@@ -88,75 +102,58 @@ const ShopPage: FC = () => {
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* Example Product Card */}
-            <div className="bg-white shadow-md rounded-lg p-4">
-              <img
-                src="/assets/product-image.jpg"
-                alt="Product"
-                className="w-full h-64 object-cover mb-4"
-              />
-              <h3 className="text-lg font-bold">Product Name</h3>
-              <p className="text-gray-500 mt-2">$99.99</p>
-              <button className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+            {/* Example Product Card  */}
+            { 
+            searchProductsLoading? <p>Loading..... </p> : 
+            searchData?.data.products.map((product)=>( 
+              <div key={product._id} className="bg-white shadow-md rounded-lg p-4"> 
+              <img src={`${server}/${product.photos[0]}`} alt="product-photo" className="w-full h-64 object-cover mb-4"/>
+              <h3 className="text-lg font-bold">{product.name}</h3>
+              <p className="text-gray-500 mt-2">{`Tk ${product.price}`}</p>
+              <button className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" 
+              onClick={()=>addToCartHandler({
+                productId:product._id, 
+                name:product.name,
+                photo:product.photos[0],  
+                price:product.price,
+                stock:product.stock,
+                quantity:1
+              })}
+              >
                 Add to Cart
               </button>
             </div>
+            ))
+            }
+            
+
             {/* Repeat Product Cards */}
           </div>
 
+          
           {/* Pagination */}
-          <div className="mt-8 flex justify-center">
-            <nav aria-label="Pagination">
-              <ul className="inline-flex items-center -space-x-px">
-                {/* Previous Button */}
-                <li>
-                  <a
-                    href="#"
-                    className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700"
-                  >
-                    Previous
-                  </a>
-                </li>
+          <article className="p-4 flex justify-center items-center"> 
+            
+            <button 
+              className={`px-4 py-2 text-gray-300 mr-2 rounded-md ${!isPrevPage? 'bg-gray-400 text-gray-700 cursor-not-allowed':'bg-blue-800'}`}
+              disabled={!isPrevPage}
+              onClick={()=>setPage((cp)=>cp-1)}
+              >
+              Prev
+            </button> 
+            <span className="text-lg font-bold"></span>
+            <button 
+              className={`px-4 py-2 text-gray-300 ml-2 rounded-md ${!isNextPage? 'bg-gray-400 text-gray-700 cursor-not-allowed':'bg-blue-800'}`}
+              disabled={!isNextPage}
+              onClick={()=>setPage((cp)=>cp+1)}
+              >
+              Next
+            </button> 
 
-                {/* Page Numbers */}
-                <li>
-                  <a
-                    href="#"
-                    className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                  >
-                    1
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                  >
-                    2
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                  >
-                    3
-                  </a>
-                </li>
+          </article>
 
-                {/* Next Button */}
-                <li>
-                  <a
-                    href="#"
-                    className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700"
-                  >
-                    Next
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
         </div>
+       
       </div>
     </div>
   );
