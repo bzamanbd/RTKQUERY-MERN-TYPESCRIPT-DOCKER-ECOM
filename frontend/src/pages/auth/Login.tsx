@@ -4,13 +4,14 @@ import toast from "react-hot-toast";
 import { userExist, userNotExist } from "../../services/redux/reducer/userReducer";
 import { useDispatch } from "react-redux";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Login: FC = () => { 
   const [formData, setFormData] = useState({ email: '', password: ''});
   const [login,{isLoading}] = useLoginMutation();
   const dispatch = useDispatch(); 
   const navigate = useNavigate();
+  const location = useLocation();
   const handleChange = (e: ChangeEvent<HTMLInputElement>)=>{ 
     const {name, value} = e.target;
     console.log(name);
@@ -34,7 +35,9 @@ const Login: FC = () => {
           localStorage.setItem('auth', JSON.stringify({user:userData, token}));
           dispatch(userExist({user: userData, token}));
           setFormData({ email: '', password: ''});
-          navigate(`/dashboard/${userData.role === 'admin'? 'admin' : 'user'}`);
+          const redirectTo = location.state?.from?.pathname || `/dashboard/${userData.role === 'admin'? 'admin' : 'user'}`;
+          // navigate(`/dashboard/${userData.role === 'admin'? 'admin' : 'user'}`);
+          navigate(redirectTo);
         }else{ 
           toast.error('Invalid response data')
         }

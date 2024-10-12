@@ -2,16 +2,20 @@ import { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, server } from '../../services/redux/store';
 import { CartItem } from '../../types/reducer-types';
-import { addToCart, calculatePrice, discountApplied, removeCartItem } from '../../services/redux/reducer/cartReducer';
+import { addToCart, calculatePrice, discountApplied, saveCouponCode, removeCartItem } from '../../services/redux/reducer/cartReducer';
 import axios from 'axios';
 import ItemCard from './ItemCard';
 import Summary from './Summary';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Cart: FC = () => { 
   const dispatch = useDispatch(); 
   const {items, subtotal, shippingCharges,tax,total,discount} = useSelector((state:RootState)=>state.cartReducer);
+  const isLoggedIn = useSelector((state:RootState)=>state.userReducer.token);
   const [couponCode, setCouponCode] = useState<string>('');
   const [isValidCouponCode, setIsValidCouponCode] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const location = useLocation();
  
 
   const quantityIncreaseHandler = (item:CartItem) => {  
@@ -34,11 +38,13 @@ const Cart: FC = () => {
         dispatch(discountApplied(res.data.data.discount.amount)); 
         setIsValidCouponCode(true);
         dispatch(calculatePrice());
+        dispatch(saveCouponCode(couponCode));
       })
       .catch(()=>{ 
         dispatch(discountApplied(0));
         setIsValidCouponCode(false);
         dispatch(calculatePrice());
+        dispatch(saveCouponCode(""));
       })
     }, 1000);
     return ()=>{ 
@@ -52,6 +58,15 @@ const Cart: FC = () => {
   useEffect(() => {
     dispatch(calculatePrice());
   }, [dispatch, items])
+
+  // Check if the user is logged in, otherwise redirect to login page
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/login', {
+        state: { from: location }, // This helps to redirect back after login
+      });
+    }
+  }, [isLoggedIn, navigate, location]);
   
 
  return( 

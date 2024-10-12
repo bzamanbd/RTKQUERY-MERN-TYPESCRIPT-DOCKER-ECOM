@@ -8,12 +8,13 @@ const initialState:CartReducerInitialState = {
     tax:0,
     shippingCharges:0,
     discount:0,
+    couponCode:"",
     total:0,
     shippingAddress:{ 
         address:"",
         city:"",
         state:"",
-        postCode:0,
+        postCode:"",
         country:""
     }
 } 
@@ -52,6 +53,10 @@ export const cartReducer = createSlice({
             state.discount = action.payload;
         },
 
+        saveCouponCode:(state, action:PayloadAction<string>)=>{ 
+            state.couponCode = action.payload;
+        },
+
         saveShippingAddress:(state, action:PayloadAction<ShippingAddress>)=>{ 
             state.shippingAddress = action.payload;
         },
@@ -61,4 +66,4 @@ export const cartReducer = createSlice({
     }
 });
 
-export const {addToCart,removeCartItem,calculatePrice,discountApplied,saveShippingAddress,resetCart} = cartReducer.actions;
+export const {addToCart,removeCartItem,calculatePrice,discountApplied, saveCouponCode, saveShippingAddress,resetCart} = cartReducer.actions;

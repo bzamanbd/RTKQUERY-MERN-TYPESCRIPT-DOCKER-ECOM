@@ -19,7 +19,7 @@ export interface ShippingAddress{
     address: string;
     city: string;
     state: string,
-    postCode: number;
+    postCode: string;
     country: string;
 }
 
@@ -30,6 +30,7 @@ export interface CartReducerInitialState{
     tax: number;
     shippingCharges: number;
     discount: number;
+    couponCode: string;
     total: number;
     shippingAddress:ShippingAddress;
 }

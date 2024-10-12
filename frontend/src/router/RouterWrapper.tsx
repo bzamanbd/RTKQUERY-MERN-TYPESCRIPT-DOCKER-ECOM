@@ -21,6 +21,8 @@ import Users from '../pages/admin/UsersPage';
 import SingleProduct from '../pages/admin/SingleProduct';
 import CreateProduct from '../pages/admin/CreateProduct';
 import Reports from '../pages/admin/ReportsPage';
+import UserShippingAddressPage from '../pages/user/ShippingAddress';
+import Checkout from '../pages/user/Checkout';
 
 const RouterWrapper: FC = () => {
   return (
@@ -37,13 +39,18 @@ const RouterWrapper: FC = () => {
         <Route path="*" element={<PrimaryLayout><NotFound /></PrimaryLayout>} />
         
         <Route path='/dashboard' element={<PrivateRoutes/>}> 
-          <Route path="user" element={<PrimaryLayout>< UserDashboard/></PrimaryLayout>}>
+          <Route path="user" element={<PrimaryLayout><UserDashboard/></PrimaryLayout>}>
             {/* Nested routes within UserDashboard */}
             <Route path="profile" element={<UserProfilePage />} />
             <Route path="orders" element={<UserOrdersPage />} />
             <Route path="settings" element={<UserSettingsPage />} />
-          </Route> 
+          </Route>
+          <Route path="user/shipping" element={<UserShippingAddressPage />} />
+          <Route path="user/pay" element={<Checkout/>} />
+
         </Route>
+
+
 
         <Route path='/dashboard' element={<AdminRoute/>}> 
           <Route path="admin" element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}>

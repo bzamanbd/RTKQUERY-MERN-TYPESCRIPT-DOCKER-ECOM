@@ -28,8 +28,7 @@ const AdminMenu:FC = () => {
             <li className="mb-2">
               <NavLink to="users" className={({ isActive }) => isActive ? "text-blue-400 font-bold underline bg-gray-700 p-2 block" : "text-gray-200 hover:bg-gray-700 p-2 block"} >Users</NavLink>
             </li>
-
-
+            
             <li className="mb-2">
               <NavLink to="reports" className={({ isActive }) => isActive ? "text-blue-400 font-bold underline bg-gray-700 p-2 block" : "text-gray-200 hover:bg-gray-700 p-2 block"}  >Reports</NavLink>
             </li>

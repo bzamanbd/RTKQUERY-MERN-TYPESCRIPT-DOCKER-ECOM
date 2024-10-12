@@ -31,3 +31,27 @@ export type AllProductsResponse = {
         products: Product[];
     }
 }
+
+export type ShippingAddress = {
+    address: string;
+    city: string;
+    state: string;
+    postCode: string;
+    country: string;
+}; 
+
+export type OrderedItem = {
+    name: string;
+    photo: string;
+    price: number;
+    quantity: number;
+    productId: string;
+}; 
+
+export type NewOrderRequestData = { 
+    shippingAddress: ShippingAddress;
+    discountCode: string; 
+    orderedItems: OrderedItem[]
+}
+
+

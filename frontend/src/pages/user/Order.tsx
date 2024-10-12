@@ -1,7 +1,8 @@
+
 const UserOrdersPage = () => {
   return (
     <div>
-      this is user orders page
+      this is orders page
     </div>
   )
 }

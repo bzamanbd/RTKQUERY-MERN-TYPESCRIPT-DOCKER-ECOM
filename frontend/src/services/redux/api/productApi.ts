@@ -18,7 +18,6 @@ export const  productAPI = createApi({
     }),
     tagTypes: ['Products'], // Add a tag for products
     endpoints:(builder)=>({ 
-
         latest:builder.query<AllProductsResponse, string>({ 
             query: ()=>"latest",
             providesTags: ['Products'], // Tag for products query

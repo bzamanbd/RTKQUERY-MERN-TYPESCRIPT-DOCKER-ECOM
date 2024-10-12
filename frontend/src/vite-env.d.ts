@@ -53,7 +53,3 @@ export type SearchProductResponse = {
         totalPage: number
     }
 };
-
-
-
-
