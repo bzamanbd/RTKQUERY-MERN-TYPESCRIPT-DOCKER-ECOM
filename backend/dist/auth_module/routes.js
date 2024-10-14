@@ -9,6 +9,6 @@ const rateLimiter_1 = __importDefault(require("../utils/rateLimiter"));
 const imageUploader_1 = __importDefault(require("../middlewares/imageUploader"));
 const routes = (0, express_1.Router)();
 const avatarUploader = (0, imageUploader_1.default)('avatar');
-routes.post("/signup", rateLimiter_1.default, avatarUploader, controllers_1.signup);
+routes.post("/register", rateLimiter_1.default, avatarUploader, controllers_1.register);
 routes.post("/login", controllers_1.login);
 exports.default = routes;

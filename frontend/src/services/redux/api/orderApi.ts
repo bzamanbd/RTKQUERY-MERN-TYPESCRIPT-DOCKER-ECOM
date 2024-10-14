@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
-import { NewOrderRequestData } from "../../../types/api-types";
+import { MyOrderResponse, MyOrdersResponse, NewOrderRequestData } from "../../../types/api-types";
 export const  orderAPI = createApi({ 
     reducerPath: 'orderAPI',
     baseQuery: fetchBaseQuery({ 
@@ -26,7 +26,22 @@ export const  orderAPI = createApi({
             }),
             invalidatesTags: ['Orders'], // Invalidate the products cache
         }),
+
+        myOrders:builder.query<MyOrdersResponse, string>({ 
+            query: ()=>"", 
+            providesTags: ['Orders'], // Tag for products query
+        }),
+
+        myOrderById:builder.query<MyOrderResponse, string>({ 
+            query: (id:string)=>{ 
+                const base = `own/${id}`;
+                return base;
+            },
+            providesTags: ['Orders'], // Tag for products query
+        }),
+
+
     }), 
 })
 
-export const {useCreateOrderMutation} = orderAPI;
+export const {useCreateOrderMutation,useMyOrdersQuery, useMyOrderByIdQuery} = orderAPI;

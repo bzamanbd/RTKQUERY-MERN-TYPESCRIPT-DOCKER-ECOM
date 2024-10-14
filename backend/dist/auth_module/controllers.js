@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.signup = void 0;
+exports.login = exports.register = void 0;
 const appErr_1 = __importDefault(require("../utils/appErr"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -17,7 +17,7 @@ const path_1 = __importDefault(require("path"));
 const imageProcessor_1 = require("../utils/imageProcessor");
 const tryCatch_1 = __importDefault(require("../middlewares/tryCatch"));
 const fs_1 = require("fs");
-const signup = async (req, res, next) => {
+const register = async (req, res, next) => {
     const payload = req.body;
     const avatar = req.file;
     if (!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer) {
@@ -79,7 +79,7 @@ const signup = async (req, res, next) => {
         return next((0, appErr_1.default)(e.message, 500));
     }
 };
-exports.signup = signup;
+exports.register = register;
 exports.login = (0, tryCatch_1.default)(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password)

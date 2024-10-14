@@ -15,7 +15,7 @@ import AdminRoute from '../components/routes/AdminRoute';
 import AdminDashboard from '../pages/admin/Dashboard';
 import UserProfilePage from '../pages/user/Profile';
 import UserSettingsPage from '../pages/user/Settings';
-import UserOrdersPage from '../pages/user/Order';
+import UserOrdersPage from '../pages/user/Orders';
 import Products from '../pages/admin/Products';
 import Users from '../pages/admin/UsersPage';
 import SingleProduct from '../pages/admin/SingleProduct';

@@ -1,29 +1,32 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import arrowBack from '../../assets/icons/arrow_back_24dp_666666.svg'
 import { useBackButtonHandler } from "../../utils/backButtonHandler";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../services/redux/store';
 import toast from 'react-hot-toast';
 import { useCreateOrderMutation } from '../../services/redux/api/orderApi';
 import { useNavigate } from 'react-router-dom';
+import { resetCart } from '../../services/redux/reducer/cartReducer';
 
 const Checkout = () => {
   const handleBack = useBackButtonHandler();
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const {items, couponCode, shippingAddress } = useSelector((state:RootState)=>state.cartReducer);
-  const token = useSelector((state:RootState)=>state.userReducer.token);
   const [createOrder, { isLoading, }] = useCreateOrderMutation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e:FormEvent) => {
+    e.preventDefault();
     try {
       await createOrder({
         shippingAddress,
         orderedItems:items,
         discountCode:couponCode,
       }).unwrap();
-      alert('Order created successfully!');
-      navigate('/dashboard/user/orders'); 
+      dispatch(resetCart());
+      toast.success('Order created successfully!');
+      navigate('/dashboard/user/orders');
     } catch (error) {
       console.error('Failed to create order:', error);
       toast.error(`${error}`);
@@ -39,7 +42,6 @@ const Checkout = () => {
         </div>
         
         <form onSubmit={handleSubmit}>
-
           <div className="mb-4">
             <label htmlFor="country" className="block text-sm font-medium text-gray-700">
               Payment Method
@@ -56,18 +58,11 @@ const Checkout = () => {
               <option value="Bkash">Bkash</option>
             </select>
           </div>
-
           <button type='submit'
           disabled={isLoading}
           className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none translate-x-36">
             {isLoading ? 'Submitting...' : 'Submit Order'}
           </button>
-          <pre>{JSON.stringify(shippingAddress, null,4)}</pre>
-          <pre>{JSON.stringify(items, null,4)}</pre>
-          <pre>{JSON.stringify(couponCode, null,4)}</pre>
-          <pre>{JSON.stringify(paymentMethod, null,4)}</pre>
-          <pre>{JSON.stringify(token, null,4)}</pre>
-
         </form>
       </div>
     </div>

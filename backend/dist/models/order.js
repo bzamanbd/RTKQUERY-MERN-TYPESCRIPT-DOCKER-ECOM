@@ -21,7 +21,7 @@ const orderSchema = new Schema({
             required: true
         },
         postCode: {
-            type: Number,
+            type: String,
             required: true
         },
         country: {
@@ -69,5 +69,22 @@ const orderSchema = new Schema({
         enum: ["Processing", "Shipped", "Delivered"],
         default: "Processing"
     },
-}, { timestamps: true });
+    qrCode: {
+        type: String, // Store the QR code as a data URL or a URL to the image
+        default: "",
+    },
+    createdAt: {
+        type: Date,
+        default: () => new Date(),
+    },
+    updatedAt: {
+        type: Date,
+        default: () => new Date(),
+    },
+});
+// Automatically update the `updatedAt` field before saving
+orderSchema.pre('save', function (next) {
+    this.updatedAt = new Date();
+    next();
+});
 exports.Order = mongoose_1.default.model('Order', orderSchema);

@@ -35,7 +35,7 @@ const Login: FC = () => {
           localStorage.setItem('auth', JSON.stringify({user:userData, token}));
           dispatch(userExist({user: userData, token}));
           setFormData({ email: '', password: ''});
-          const redirectTo = location.state?.from?.pathname || `/dashboard/${userData.role === 'admin'? 'admin' : 'user'}`;
+          const redirectTo = location.state?.from?.pathname ? location.state.from.pathname : `/dashboard/${userData.role === 'admin'? 'admin' : 'user'}`;
           // navigate(`/dashboard/${userData.role === 'admin'? 'admin' : 'user'}`);
           navigate(redirectTo);
         }else{ 

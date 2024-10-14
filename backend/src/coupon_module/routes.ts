@@ -7,7 +7,7 @@ const routes = Router()
 
 routes.post("/payment", isLoggedIn,createPaymentIntent)
 routes.post("/new",isLoggedIn, isAdmin, newCoupon)
-routes.get("/discount",isLoggedIn,applyDiscount)
+routes.get("/discount",applyDiscount)
 routes.get("/all",isLoggedIn, isAdmin, allCoupons)
 routes.delete("/:id",isLoggedIn, isAdmin, deleteCoupon)
 

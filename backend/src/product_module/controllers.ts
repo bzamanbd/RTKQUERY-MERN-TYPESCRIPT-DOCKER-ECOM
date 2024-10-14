@@ -78,14 +78,14 @@ export const fetchProductsCats = TryCatch(
 
 export const fetchProductsWithFilter = TryCatch( 
     async(req:Request<{},{},{}, SearchRequestQuery>, res:Response, next:NextFunction)=>{ 
-        const {name, sort, category, price} = req.query; 
+        const { search, sort,category, price} = req.query; 
         const page = Number(req.query.page) || 1; 
         const limit = Number(process.env.PRODUCT_PER_PAGE) || 4
         //pagination
         const skip = (page - 1) * limit; 
 
         const baseQuery:BaseQuery = {};
-        if(name)baseQuery.name={$regex:name, $options:'i'};
+        if(search)baseQuery.name={$regex:search, $options:'i'};
         if(price)baseQuery.price={$lte:Number(price)};
         if(category)baseQuery.category=category;
 
@@ -122,7 +122,8 @@ export const fetchProductById = TryCatch(
 
 export const editProduct = TryCatch( 
     async(req:Request, res:Response,next:NextFunction)=>{ 
-        const _id = req.params.id;
+        const {id} = req.params;
+        console.log("Product ID===>",id);
         const payload = req.body;
         let photos: Express.Multer.File[] = [];
         let videos: Express.Multer.File[] = [];
@@ -134,16 +135,16 @@ export const editProduct = TryCatch(
             photos = req.files['photos'] || [];  // Handle photos
             videos = req.files['videos'] || [];  // Handle videos
         };
-        if (!mongoose.Types.ObjectId.isValid(_id)){
+        if (!mongoose.Types.ObjectId.isValid(id)){
             deleteTempFiles([...photos, ...videos]);
             return next(appErr('Invalid ID format',400));
         };
-        if(!_id){
+        if(!id){
             deleteTempFiles([...photos, ...videos]);
             return next(appErr('id is required',400));
         }; 
         try {
-            const product = await Product.findById(_id);
+            const product = await Product.findById({_id:id});
             if (!product){
                 deleteTempFiles([...photos, ...videos]);
                 return next(appErr('product not found',404));

@@ -13,7 +13,7 @@ import { deleteFile, processImage } from "../utils/imageProcessor"
 import TryCatch from "../middlewares/tryCatch"
 import { rm } from "fs"
 
-export const signup = async(req:Request, res:Response,next:NextFunction)=>{  
+export const register = async(req:Request, res:Response,next:NextFunction)=>{  
         const payload = req.body
         const avatar = req.file
         if(!payload.name || !payload.email || !payload.password || !payload.phone || !payload.question || !payload.answer){ 

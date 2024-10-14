@@ -1,5 +1,5 @@
 import {Router} from "express"
-import {signup,login} from "./controllers"
+import {register,login} from "./controllers"
 import rateLimiter from "../utils/rateLimiter"
 import imageUploader from "../middlewares/imageUploader";
 
@@ -7,7 +7,7 @@ const routes = Router()
 
 const avatarUploader = imageUploader('avatar');
 
-routes.post("/signup", rateLimiter, avatarUploader, signup)
+routes.post("/register", rateLimiter, avatarUploader, register)
 
 routes.post("/login",login)
 

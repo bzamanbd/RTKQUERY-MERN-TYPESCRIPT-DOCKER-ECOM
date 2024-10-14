@@ -7,6 +7,8 @@ import {Order} from "../models/order";
 import { reduceStock } from "../utils/reduceStock";
 import appRes from "../utils/appRes";
 import mongoose from 'mongoose';
+import QRCode from 'qrcode';
+
 
 export const createOrder = TryCatch( 
     async(req:Request<{},{}, NewOrderRequestBody>,res:Response,next:NextFunction)=>{ 
@@ -21,6 +23,7 @@ export const createOrder = TryCatch(
                     photo: product.photos[0],
                     price: product.price,
                     quantity: orderedItem.quantity,
+                    stock:product.stock,
                     productId: product._id
                 }
             })
@@ -48,7 +51,14 @@ export const createOrder = TryCatch(
             customer: req.user._id,
             payment: total,
         });
-        await reduceStock(processedItems); 
+        await reduceStock(processedItems);
+        // Generate a unique string for the QR code (e.g., using the order ID)
+        const qrData = `order:${order._id}`;
+        // Generate the QR code as a data URL
+        const qrCode = await QRCode.toDataURL(qrData);
+        // Optionally, store the QR code in the order object
+        order.qrCode = qrCode;
+        await order.save();
         appRes(res,201,'','New order created',{order})
     }
 );
@@ -72,6 +82,18 @@ export const fetchOrder = TryCatch(
     }
 );
 
+// Get the QR code for an order by ID
+export const fetchOrderQRCode = TryCatch( 
+    async(req:Request,res:Response,next:NextFunction)=>{ 
+        const orderId = req.params.id 
+        if(!orderId) return next(appErr('id is required',400))
+        if (!mongoose.Types.ObjectId.isValid(orderId)) return next(appErr('Invalid ID format',400)) 
+        const order = await Order.findById({_id:orderId});
+        if(!order)return appRes(res,200,'',`Order not found!`,{order});
+        appRes(res,200,'',`Order found!`,{QRCode: order.qrCode});
+    }
+);
+
 export const myOrders = TryCatch(
     async(req:Request,res:Response,next:NextFunction)=>{
         const userId = req.user?._id;
@@ -79,6 +101,19 @@ export const myOrders = TryCatch(
         const orders = await Order.find({customer:userId})
         if(!orders)return appRes(res,200,'',`Orders not found!`,{orders})
         appRes(res,200,'',`Orders found!`,{orders})
+    }
+);
+
+export const myOrderById = TryCatch(
+    async(req:Request,res:Response,next:NextFunction)=>{
+        const userId = req.user?._id;
+        const orderId = req.params.id;
+        if(!orderId) return next(appErr('id is required',400));
+        if (!mongoose.Types.ObjectId.isValid(orderId)) return next(appErr('Invalid ID format',400))
+        if (!mongoose.Types.ObjectId.isValid(userId)) return next(appErr('Invalid ID format',400))
+        const order = await Order.findOne({customer:userId, _id:orderId});
+        if(!order)return appRes(res,200,'',`Order not found!`,{order})
+        appRes(res,200,'',`Order found!`,{order})
     }
 );
 

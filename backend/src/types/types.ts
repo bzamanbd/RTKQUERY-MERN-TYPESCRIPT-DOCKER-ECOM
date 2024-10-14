@@ -35,7 +35,7 @@ export interface ICoupon extends Document{
 }
 
 export type SearchRequestQuery = { 
-    name?:string,
+    search?:string,
     price?:string,
     category?:string,
     sort?:string,
@@ -60,7 +60,7 @@ export type ShippingAddressType = {
     city: string;
     status: string; 
     country: string;
-    postCode: number;
+    postCode: string;
 };
 
 export type OrderItemsType = {

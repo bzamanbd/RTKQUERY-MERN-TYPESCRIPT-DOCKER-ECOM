@@ -54,7 +54,6 @@ const Cart: FC = () => {
     }
   }, [couponCode, dispatch])
   
-
   useEffect(() => {
     dispatch(calculatePrice());
   }, [dispatch, items])

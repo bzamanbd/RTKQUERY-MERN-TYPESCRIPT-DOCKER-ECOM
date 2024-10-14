@@ -74,14 +74,14 @@ exports.fetchProductsCats = (0, tryCatch_1.default)(async (req, res, next) => {
     (0, appRes_1.default)(res, 200, '', `${categories.length} Category found!`, { categories });
 });
 exports.fetchProductsWithFilter = (0, tryCatch_1.default)(async (req, res, next) => {
-    const { name, sort, category, price } = req.query;
+    const { search, sort, category, price } = req.query;
     const page = Number(req.query.page) || 1;
     const limit = Number(process.env.PRODUCT_PER_PAGE) || 4;
     //pagination
     const skip = (page - 1) * limit;
     const baseQuery = {};
-    if (name)
-        baseQuery.name = { $regex: name, $options: 'i' };
+    if (search)
+        baseQuery.name = { $regex: search, $options: 'i' };
     if (price)
         baseQuery.price = { $lte: Number(price) };
     if (category)
@@ -112,7 +112,8 @@ exports.fetchProductById = (0, tryCatch_1.default)(async (req, res, next) => {
     (0, appRes_1.default)(res, 200, '', `${product.name} found!`, { product });
 });
 exports.editProduct = (0, tryCatch_1.default)(async (req, res, next) => {
-    const _id = req.params.id;
+    const { id } = req.params;
+    console.log("Product ID===>", id);
     const payload = req.body;
     let photos = [];
     let videos = [];
@@ -126,18 +127,18 @@ exports.editProduct = (0, tryCatch_1.default)(async (req, res, next) => {
         videos = req.files['videos'] || []; // Handle videos
     }
     ;
-    if (!mongoose_1.default.Types.ObjectId.isValid(_id)) {
+    if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
         (0, deleteTempFiles_1.default)([...photos, ...videos]);
         return next((0, appErr_1.default)('Invalid ID format', 400));
     }
     ;
-    if (!_id) {
+    if (!id) {
         (0, deleteTempFiles_1.default)([...photos, ...videos]);
         return next((0, appErr_1.default)('id is required', 400));
     }
     ;
     try {
-        const product = await product_1.Product.findById(_id);
+        const product = await product_1.Product.findById({ _id: id });
         if (!product) {
             (0, deleteTempFiles_1.default)([...photos, ...videos]);
             return next((0, appErr_1.default)('product not found', 404));

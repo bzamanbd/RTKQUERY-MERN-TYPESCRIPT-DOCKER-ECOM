@@ -10,7 +10,7 @@ import { useBackButtonHandler } from '../../utils/backButtonHandler';
 
 
 const UserShippingAddressPage: React.FC = () => { 
-  const {items, couponCode } = useSelector((state:RootState)=>state.cartReducer);
+  const {items} = useSelector((state:RootState)=>state.cartReducer);
   const dispatch = useDispatch(); 
   const navigate = useNavigate();
   const handleBack = useBackButtonHandler();
@@ -148,11 +148,6 @@ const UserShippingAddressPage: React.FC = () => {
           className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none translate-x-36">
             Pay Now
           </button>
-
-          <pre>{JSON.stringify(shippingAddress, null,4)}</pre>
-          <pre>{JSON.stringify(items, null,4)}</pre>
-          <pre>{JSON.stringify(couponCode, null,4)}</pre>
-
         </form>
       </div>
     </div>
