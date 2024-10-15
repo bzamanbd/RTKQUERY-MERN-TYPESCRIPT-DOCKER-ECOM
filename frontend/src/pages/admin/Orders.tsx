@@ -1,13 +1,13 @@
 import { FC, useState } from 'react';
 import { Table, Avatar, Button, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
-import { useMyOrdersQuery } from '../../services/redux/api/orderApi';
+import { useAllOrdersQuery } from '../../services/redux/api/orderApi';
 import { server } from '../../services/redux/store';
 import OrderModal from './OrderModal';
 
-const UserOrdersPage: FC = () => {
+const AdminOrdersPage: FC = () => {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
-  const {data} = useMyOrdersQuery("");
+  const {data} = useAllOrdersQuery("");
   if(!data?.data.orders)return;
   const orders = data.data.orders;
   const reversedOrders = orders.slice().reverse();
@@ -22,10 +22,10 @@ const UserOrdersPage: FC = () => {
     setModalOpen(false);
     setSelectedOrderId(null);
   };
-  
+    
   return (
     <div className="p-4  h-auto">
-      <h1 className='mb-4 ml-2 text-gray-700'>Orders Summary </h1>
+      <h1 className='mb-4 ml-2 text-gray-700'>All Orders</h1>
       <Table
         aria-label="Order Summary Table"
         className='h-auto min-w-full'
@@ -78,9 +78,6 @@ const UserOrdersPage: FC = () => {
                   <Button size="sm" color="primary" onClick={() => handleViewClick(order._id)} >
                     View
                   </Button>
-                  {/* <Button size="sm" color="secondary" className="ml-2">
-                    Edit
-                  </Button> */}
                 </TableCell>
               </TableRow>
             )
@@ -102,4 +99,4 @@ const UserOrdersPage: FC = () => {
   );
 };
 
-export default UserOrdersPage;
+export default AdminOrdersPage;

@@ -40,8 +40,26 @@ export const  orderAPI = createApi({
             providesTags: ['Orders'], // Tag for products query
         }),
 
+        allOrders:builder.query<MyOrdersResponse, string>({ 
+            query: ()=>"all", 
+            providesTags: ['Orders'], // Tag for products query
+        }),
+
+        fetchOrderById:builder.query<MyOrderResponse, string>({ 
+            query: (id:string)=>(id),
+            providesTags: ['Orders'], // Tag for products query
+        }),
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        deleteOrderById:builder.mutation<any, string>({ 
+            query: (id:string)=>({ 
+                url: `${id}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ['Orders'], // Invalidate the products cache
+        }),
 
     }), 
 })
 
-export const {useCreateOrderMutation,useMyOrdersQuery, useMyOrderByIdQuery} = orderAPI;
+export const {useCreateOrderMutation,useMyOrdersQuery, useMyOrderByIdQuery,useAllOrdersQuery, useFetchOrderByIdQuery, useDeleteOrderByIdMutation} = orderAPI;

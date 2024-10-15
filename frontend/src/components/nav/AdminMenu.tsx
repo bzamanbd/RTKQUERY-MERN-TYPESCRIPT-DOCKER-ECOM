@@ -11,12 +11,17 @@ const AdminMenu:FC = () => {
   useEffect(() => {
     const isAdmin:boolean = !!user && user.role ==='admin' && !!token;
     if (isAdmin && location.pathname === "/dashboard/admin") {
-      navigate("products"); 
+      navigate("orders"); 
     }
   },[token,user,location,navigate]);
     return <> 
         <nav>
           <ul>
+
+            <li className="mb-2">
+              <NavLink to="orders" className={({ isActive }) => isActive ? "text-blue-400 font-bold underline bg-gray-700 p-2 block" : "text-gray-200 hover:bg-gray-700 p-2 block"}>Orders</NavLink>
+            </li>
+
             <li className="mb-2">
               <NavLink to="products" className={({ isActive }) => isActive ? "text-blue-400 font-bold underline bg-gray-700 p-2 block" : "text-gray-200 hover:bg-gray-700 p-2 block"}>Products</NavLink>
             </li>

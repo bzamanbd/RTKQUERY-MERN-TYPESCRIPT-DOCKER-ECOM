@@ -7,10 +7,10 @@ import { RootState } from '../../services/redux/store';
 const UserDashboard: FC = () => {
   const {user} = useSelector((state:RootState)=>state.userReducer);
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
       {/* Sidebar */}
       <aside className="w-64 bg-gray-800 text-white p-5">
-        <h2 className="text-xl font-bold">{`Hi ${user?.name}`}</h2>
+        <h2 className="text-xl font-bold mb-4">{`Hi ${user?.name}`}</h2>
         <p className='text-xs font-thin mb-6'>{`${user?.email}`}</p>
         <UserMenu/>        
       </aside>

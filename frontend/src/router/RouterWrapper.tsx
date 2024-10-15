@@ -23,6 +23,7 @@ import CreateProduct from '../pages/admin/CreateProduct';
 import Reports from '../pages/admin/ReportsPage';
 import UserShippingAddressPage from '../pages/user/ShippingAddress';
 import Checkout from '../pages/user/Checkout';
+import AdminOrdersPage from '../pages/admin/Orders';
 
 const RouterWrapper: FC = () => {
   return (
@@ -55,6 +56,7 @@ const RouterWrapper: FC = () => {
         <Route path='/dashboard' element={<AdminRoute/>}> 
           <Route path="admin" element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}>
             {/* Nested routes within AdminDashboard */}
+            <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="products" element={<Products />} />
             <Route path="create-product" element={<CreateProduct />} />
             <Route path="product/:id" element={<SingleProduct />} /> 
