@@ -108,7 +108,7 @@ const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose }) => {
  
             </ModalBody>
             <ModalFooter>
-              <img src={order.qrCode} alt="Order QRCode" width={80}/>
+              <img src={`${server}/${order.qrCode}`} alt="Order QRCode" width={80}/>
             </ModalFooter>
         </ModalContent>
     </Modal>

@@ -8,6 +8,9 @@ import { reduceStock } from "../utils/reduceStock";
 import appRes from "../utils/appRes";
 import mongoose from 'mongoose';
 import QRCode from 'qrcode';
+import path from 'path';
+import PDFDocument from 'pdfkit';
+import fs from 'fs';
 
 
 export const createOrder = TryCatch( 
@@ -52,12 +55,25 @@ export const createOrder = TryCatch(
             payment: total,
         });
         await reduceStock(processedItems);
-        // Generate a unique string for the QR code (e.g., using the order ID)
-        const qrData = `order:${order._id}`;
-        // Generate the QR code as a data URL
-        const qrCode = await QRCode.toDataURL(qrData);
-        // Optionally, store the QR code in the order object
-        order.qrCode = qrCode;
+        // Define the public directory
+        const INV_DIR = './public/orderInvoice';
+        // Ensure the public directory exists
+        if (!fs.existsSync(INV_DIR)) {fs.mkdirSync(INV_DIR, { recursive: true })}
+        // Generate PDF Invoice
+        const pdfPath = path.join(INV_DIR, `invoice_${order._id}.pdf`);
+        const doc = new PDFDocument();
+        doc.pipe(fs.createWriteStream(pdfPath));
+        doc.text(`Invoice for Order ID: ${order._id}`);
+        // Add more order details here (e.g., item list, total price)
+        
+        doc.end();
+        // Generate QR Code pointing to the PDF
+        const pdfUrl = `http://127.0.0.1:8000/public/orderInvoice/invoice_${order._id}.pdf`;
+        const qrCodePath = path.join(INV_DIR, `qrcode_${order._id}.png`);
+        await QRCode.toFile(qrCodePath, pdfUrl);
+        // Update the order with the paths to the PDF and QR code
+        order.invoicePath = pdfPath;
+        order.qrCode = qrCodePath;
         await order.save();
         appRes(res,201,'','New order created',{order})
     }

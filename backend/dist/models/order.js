@@ -69,6 +69,10 @@ const orderSchema = new Schema({
         enum: ["Processing", "Shipped", "Delivered"],
         default: "Processing"
     },
+    invoicePath: {
+        type: String, // Store the invoicePDF URL or a URL to the image
+        default: "",
+    },
     qrCode: {
         type: String, // Store the QR code as a data URL or a URL to the image
         default: "",

@@ -12,6 +12,9 @@ const reduceStock_1 = require("../utils/reduceStock");
 const appRes_1 = __importDefault(require("../utils/appRes"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const qrcode_1 = __importDefault(require("qrcode"));
+const path_1 = __importDefault(require("path"));
+const pdfkit_1 = __importDefault(require("pdfkit"));
+const fs_1 = __importDefault(require("fs"));
 exports.createOrder = (0, tryCatch_1.default)(async (req, res, next) => {
     const { orderedItems, shippingAddress, discountCode } = req.body;
     if (!orderedItems || !shippingAddress)
@@ -51,12 +54,26 @@ exports.createOrder = (0, tryCatch_1.default)(async (req, res, next) => {
         payment: total,
     });
     await (0, reduceStock_1.reduceStock)(processedItems);
-    // Generate a unique string for the QR code (e.g., using the order ID)
-    const qrData = `order:${order._id}`;
-    // Generate the QR code as a data URL
-    const qrCode = await qrcode_1.default.toDataURL(qrData);
-    // Optionally, store the QR code in the order object
-    order.qrCode = qrCode;
+    // Define the public directory
+    const INV_DIR = './public/orderInvoice';
+    // Ensure the public directory exists
+    if (!fs_1.default.existsSync(INV_DIR)) {
+        fs_1.default.mkdirSync(INV_DIR, { recursive: true });
+    }
+    // Generate PDF Invoice
+    const pdfPath = path_1.default.join(INV_DIR, `invoice_${order._id}.pdf`);
+    const doc = new pdfkit_1.default();
+    doc.pipe(fs_1.default.createWriteStream(pdfPath));
+    doc.text(`Invoice for Order ID: ${order._id}`);
+    // Add more order details here (e.g., item list, total price)
+    doc.end();
+    // Generate QR Code pointing to the PDF
+    const pdfUrl = `http://127.0.0.1:8000/public/orderInvoice/invoice_${order._id}.pdf`;
+    const qrCodePath = path_1.default.join(INV_DIR, `qrcode_${order._id}.png`);
+    await qrcode_1.default.toFile(qrCodePath, pdfUrl);
+    // Update the order with the paths to the PDF and QR code
+    order.invoicePath = pdfPath;
+    order.qrCode = qrCodePath;
     await order.save();
     (0, appRes_1.default)(res, 201, '', 'New order created', { order });
 });
