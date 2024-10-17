@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
-import { MyOrderResponse, MyOrdersResponse, NewOrderRequestData } from "../../../types/api-types";
+import {  MyOrderResponse, MyOrdersResponse, NewOrderRequestData, UpdateOrderStatusResponse } from "../../../types/api-types";
 export const  orderAPI = createApi({ 
     reducerPath: 'orderAPI',
     baseQuery: fetchBaseQuery({ 
@@ -57,9 +57,18 @@ export const  orderAPI = createApi({
                 method: "DELETE",
             }),
             invalidatesTags: ['Orders'], // Invalidate the products cache
+        }),        
+        
+        updateOrderStatus:builder.mutation<UpdateOrderStatusResponse, { id: string; status: string }>({ 
+            query: ({id, status})=>({ 
+                url: `${id}`,
+                method: "PUT",
+                body: {status}
+            }),
+            invalidatesTags: ['Orders'], // Invalidate the products cache
         }),
 
     }), 
 })
 
-export const {useCreateOrderMutation,useMyOrdersQuery, useMyOrderByIdQuery,useAllOrdersQuery, useFetchOrderByIdQuery, useDeleteOrderByIdMutation} = orderAPI;
+export const {useCreateOrderMutation,useMyOrdersQuery, useMyOrderByIdQuery,useAllOrdersQuery, useFetchOrderByIdQuery, useDeleteOrderByIdMutation, useUpdateOrderStatusMutation} = orderAPI;

@@ -1,23 +1,24 @@
 import { FC } from 'react';
 import { Modal, ModalHeader,ModalBody,ModalFooter, useDisclosure, ModalContent, Table,TableHeader, TableColumn, TableBody, TableRow, TableCell, Button} from '@nextui-org/react';
-import { useDeleteOrderByIdMutation, useFetchOrderByIdQuery} from '../../services/redux/api/orderApi';
-import { server } from '../../services/redux/store';
+import { useDeleteOrderByIdMutation, useFetchOrderByIdQuery, useUpdateOrderStatusMutation} from '../../services/redux/api/orderApi';
 import {Image} from "@nextui-org/react";
 import toast from 'react-hot-toast';
+import { server } from '../../services/redux/store';
 
 interface OrderModalProps{
   orderId: string;
   isOpen: boolean;
   onClose: () => void;
+  
 }
 
 const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose}) => {
+    const [updateOrderStatus,{isLoading: isUpdating}] = useUpdateOrderStatusMutation();
     const {onOpenChange} = useDisclosure();
     const {data} = useFetchOrderByIdQuery(orderId || "");
-    const [deletedOrder, { isLoading }] = useDeleteOrderByIdMutation();
+    const [deletedOrder, { isLoading: isDeleting }] = useDeleteOrderByIdMutation();
     if(!data?.data.order)return;
     const order = data.data.order;
-
     const date = new Date(order.createdAt); 
     const formattedDate = date.toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -25,10 +26,17 @@ const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose}) => {
       year: 'numeric',
     });
 
+    const currentStatus = order.status;
+    const handleStatusChange = () => {
+      const statusSequence = ["Processing", "Shipped", "Delivered"];
+      const currentIndex = statusSequence.indexOf(currentStatus);
+      const nextStatus = statusSequence[(currentIndex + 1) % statusSequence.length];
+      updateOrderStatus({ id: orderId, status: nextStatus });
+    };
+
     const handleDeleteClick = async (orderId:string) => {
         const isConfirmed = window.confirm("Are you sure you want to delete this order?");
         if (isConfirmed) {
-          // Call the delete function or API request here
           try {
             await deletedOrder(orderId).unwrap();
             onClose();
@@ -38,9 +46,8 @@ const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose}) => {
             toast.success('Error deleting the order');
           }
         }
-      };
+    };
          
-  
   return (
     <Modal onClose={onClose}
     backdrop="blur" 
@@ -55,7 +62,7 @@ const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose}) => {
             </ModalHeader>
             <ModalBody>
               <div className='flex items-center justify-between'>
-                <span>{`Created At: ${formattedDate}`}</span>
+                <span>{`Order Date: ${formattedDate}`}</span>
                 <span className={`px-2 py-1 rounded-full text-white 
                   ${ order.status === 'Completed' ? 'bg-green-500' : 'bg-yellow-500'}`}>
                   {order.status}
@@ -85,6 +92,7 @@ const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose}) => {
                 }
               </div> 
               <div className='flex justify-between items-start gap-4'>
+
                 <div className='flex flex-col'> 
                   <span>Shipping Address</span>
                   <span className='text-sm'>{order.shippingAddress.address}</span>
@@ -92,7 +100,7 @@ const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose}) => {
                   <span className='text-sm'>{order.shippingAddress.country}</span>
                   <span className='text-sm'>{order.shippingAddress.postCode}</span>
                 </div>
-                
+
                 <div>  
                   <span>Summary</span>
                   <div className='flex justify-between items-center text-sm gap-4'>
@@ -120,19 +128,27 @@ const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose}) => {
                     <span>{order.total.toFixed(2)}</span>
                   </div>
                 </div>  
-                
+              </div>
+              <div className='flex items-center justify-between'>
+                <div className='flex flex-col'>
+                  <span>Customer Info</span>
+                  <span className='text-sm'>{order.customer?.name}</span>
+                  <span className='text-sm'>{order.customer?.email}</span>
+                  <span className='text-sm'>{order.customer?.phone}</span>
+                  <span className='text-sm'>{order.customer?.address}</span>
+                </div> 
+                <img src={`${server}/${order.qrCode}`} alt="Order QRCode" width={80}/>
               </div>
             </ModalBody>
-            <ModalFooter className='flex justify-between items-center'>
-              <div className='flex items-center justify-between gap-4'> 
-                <Button size="sm" color="primary" className="ml-2">Process</Button>
+            <ModalFooter className='flex justify-evenly items-center'>
+                <Button size="sm" color="primary" className="ml-2" onClick={handleStatusChange} isDisabled= {isUpdating || currentStatus === "Delivered"} isLoading={isUpdating}>
+                  {isUpdating? "Updating..." : currentStatus==="Delivered"? "Already delivered" : "Change Status" }
+                </Button>
                 <Button size="sm" color="danger" className="ml-2" 
                 onClick={() => handleDeleteClick(orderId)}
-                disabled={isLoading} >
-                  {isLoading ? 'Deleting...' : 'Delete Order'}
+                isLoading={isDeleting}>
+                  {isDeleting ? 'Deleting...' : 'Delete Order'}
                 </Button>
-              </div>
-              <img src={`${server}/${order.qrCode}`} alt="Order QRCode" width={80}/>
             </ModalFooter>
         </ModalContent>
     </Modal>

@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import {useRegisterMutation } from '../../services/redux/api/userApi';
+import {useRegisterMutation } from '../../services/redux/api/authApi';
 import toast from 'react-hot-toast';
 import { userExist, userNotExist } from '../../services/redux/reducer/userReducer';
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";

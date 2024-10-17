@@ -86,6 +86,14 @@ export type MyOrdersResponse = {
     }
 }
 
+export type Customer = {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    avatar: string;
+}
 
 export type MyOrderResponse = { 
     message: string;
@@ -99,12 +107,55 @@ export type MyOrderResponse = {
             shippingCharges: number;
             discount: number;
             total: number;
-            customer: string;
+            customer?: Customer;
             status: string;
             qrCode: string;
             createdAt: string;
         }
     }
+}
+
+export type Pagination = { 
+    totalUsers: number;
+    totalPages: number;
+    currentPage: number;
+    prevPage: number;
+    nextPage: number;
+}
+
+export type UsersResponse = { 
+    message: string;
+    data:{ 
+        users: User [];
+        pagination: Pagination;
+    }
+}
+
+export type UserProfileResponse = { 
+    message: string;
+    data:{ 
+        user: { 
+            _id: string;
+            name: string;
+            email: string;
+            phone: string;
+            address: string;
+            avatar: string;
+            question: string;
+            answer: string;
+            role: string;
+            isBanned: boolean;
+            orders: Order [];
+            createdAt: string;
+        }
+    }
+}
+
+export type UpdateOrderStatusResponse = { 
+    message: string;
+    data: {
+        updatedStatus: string;
+     }
 }
 
 
