@@ -38,8 +38,9 @@ const Menu = () => {
           </li>
           <li>
             <NavLink to="/cart" className= {({isActive})=>`px-4 py-2 ${isActive? 'text-gray-800 bg-gray-700 rounded-md' : 'text-gray-300'}`}>
-              <Badge content={cartItems.length>=1? cartItems.length : 0} size="sm" color="danger" > 
-              <FaShoppingCart className="text-gray-300 text-xl "/>
+              <Badge content={cartItems.length} size="sm" color="danger" 
+              isInvisible ={cartItems.length <=0} > 
+                <FaShoppingCart className="text-gray-300 text-xl "/>
               </Badge>
             </NavLink>
           </li>

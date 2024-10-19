@@ -8,6 +8,7 @@ routes.post('/new', auth_1.isLoggedIn, controllers_1.createOrder);
 routes.get('/', auth_1.isLoggedIn, controllers_1.myOrders);
 routes.get('/all', auth_1.isLoggedIn, auth_1.isAdmin, controllers_1.fetchOrders);
 routes.get('/:id', auth_1.isLoggedIn, auth_1.isAdmin, controllers_1.fetchOrder);
+routes.patch('/:id', auth_1.isLoggedIn, auth_1.isAdmin, controllers_1.markOrderAsViewed);
 routes.get('/:id/qrcode', controllers_1.fetchOrderQRCode);
 routes.get('/own/:id', auth_1.isLoggedIn, controllers_1.myOrderById);
 routes.delete('/own', auth_1.isLoggedIn, controllers_1.deleteOwnOrder);

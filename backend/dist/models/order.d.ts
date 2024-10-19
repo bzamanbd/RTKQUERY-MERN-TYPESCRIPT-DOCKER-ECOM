@@ -16,6 +16,7 @@ export declare const Order: mongoose.Model<{
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
+    viewed: boolean;
     invoicePath: string;
     qrCode: string;
     shippingAddress?: {
@@ -43,6 +44,7 @@ export declare const Order: mongoose.Model<{
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
+    viewed: boolean;
     invoicePath: string;
     qrCode: string;
     shippingAddress?: {
@@ -70,6 +72,7 @@ export declare const Order: mongoose.Model<{
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
+    viewed: boolean;
     invoicePath: string;
     qrCode: string;
     shippingAddress?: {
@@ -99,6 +102,7 @@ export declare const Order: mongoose.Model<{
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
+    viewed: boolean;
     invoicePath: string;
     qrCode: string;
     shippingAddress?: {
@@ -126,6 +130,7 @@ export declare const Order: mongoose.Model<{
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
+    viewed: boolean;
     invoicePath: string;
     qrCode: string;
     shippingAddress?: {
@@ -153,6 +158,7 @@ export declare const Order: mongoose.Model<{
     discount: number;
     total: number;
     customer: mongoose.Types.ObjectId;
+    viewed: boolean;
     invoicePath: string;
     qrCode: string;
     shippingAddress?: {

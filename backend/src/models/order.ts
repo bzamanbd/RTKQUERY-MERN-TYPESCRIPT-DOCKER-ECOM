@@ -59,12 +59,18 @@ const orderSchema = new Schema({
         required: true 
     },
     payment:{},
+
     status:{ 
         type:String,
         enum:["Processing","Shipped","Delivered"],
         default:"Processing"
     },
-
+    
+    viewed:{ 
+        type: Boolean,
+        default: false,
+    },
+    
     invoicePath: {
         type: String, // Store the invoicePDF URL or a URL to the image
         default: "",

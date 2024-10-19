@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteOwnAccount = exports.updatePassword = exports.resetPassword = exports.fetchQuestion = exports.updateProfile = exports.fetchProfile = exports.deleteUser = exports.updateUser = exports.fetchUser = exports.fetchUsers = void 0;
+exports.deleteOwnAccount = exports.updatePassword = exports.resetPassword = exports.fetchQuestion = exports.updateProfile = exports.fetchProfile = exports.deleteUser = exports.blockUser = exports.updateUser = exports.fetchUser = exports.fetchUsers = void 0;
 const appErr_1 = __importDefault(require("../utils/appErr"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 require("dotenv/config");
@@ -19,8 +19,7 @@ exports.fetchUsers = (0, tryCatch_1.default)(async (req, res, next) => {
     const limit = Number(req.query.limit || 5);
     const searchRexExp = new RegExp('.*' + search + '.*', 'i');
     const filter = {
-        $or: [
-            { name: { $regex: searchRexExp } },
+        $or: [{ name: { $regex: searchRexExp } },
             { email: { $regex: searchRexExp } },
             { phone: { $regex: searchRexExp } }
         ]
@@ -62,6 +61,19 @@ exports.updateUser = (0, tryCatch_1.default)(async (req, res, next) => {
     if (!user)
         return next((0, appErr_1.default)('user did not updated, something went wrong!', 500));
     (0, appRes_1.default)(res, 200, '', 'User is updated successfully!', { user });
+});
+exports.blockUser = (0, tryCatch_1.default)(async (req, res, next) => {
+    const _id = req.params.id;
+    const payload = req.body;
+    const existUser = await user_1.User.findById(_id);
+    if (!existUser)
+        return next((0, appErr_1.default)('user not found', 404));
+    const user = await user_1.User.findByIdAndUpdate(_id, { $set: payload }, { new: true, runValidators: true });
+    if (!user)
+        return next((0, appErr_1.default)('user did not updated, something went wrong!', 500));
+    if (user.isBanned)
+        return (0, appRes_1.default)(res, 200, '', `User's account is blocked successfully`, { user });
+    (0, appRes_1.default)(res, 200, '', `User's account is unblocked successfully`, { user });
 });
 exports.deleteUser = (0, tryCatch_1.default)(async (req, res, next) => {
     const id = req.params.id;

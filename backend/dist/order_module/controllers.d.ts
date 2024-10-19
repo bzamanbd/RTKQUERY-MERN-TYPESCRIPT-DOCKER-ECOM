@@ -8,3 +8,4 @@ export declare const myOrderById: (req: Request, res: Response, next: NextFuncti
 export declare const deleteOrder: (req: Request, res: Response, next: NextFunction) => void;
 export declare const deleteOwnOrder: (req: Request, res: Response, next: NextFunction) => void;
 export declare const updateOrderStatus: (req: Request, res: Response, next: NextFunction) => void;
+export declare const markOrderAsViewed: (req: Request, res: Response, next: NextFunction) => void;

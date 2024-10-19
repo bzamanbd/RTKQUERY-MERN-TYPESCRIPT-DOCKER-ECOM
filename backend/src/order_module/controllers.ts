@@ -75,6 +75,8 @@ export const createOrder = TryCatch(
         order.invoicePath = pdfPath;
         order.qrCode = qrCodePath;
         await order.save();
+        // Emit the newOrder event if io is defined
+        if (req.io) {req.io.emit('newOrder', order)}
         appRes(res,201,'','New order created',{order})
     }
 );
@@ -92,7 +94,7 @@ export const fetchOrder = TryCatch(
         const orderId = req.params.id 
         if(!orderId) return next(appErr('id is required',400))
         if (!mongoose.Types.ObjectId.isValid(orderId)) return next(appErr('Invalid ID format',400)) 
-        const order = await Order.findById({_id:orderId}).populate("customer","name");
+        const order = await Order.findById({_id:orderId}).populate("customer","name email phone address avatar");
         if(!order)return appRes(res,200,'',`Order not found!`,{order});
         appRes(res,200,'',`Order found!`,{order});
     }
@@ -157,12 +159,26 @@ export const updateOrderStatus = TryCatch(
         const {status} = req.body;
         const validStatuses = ["Processing","Shipped","Delivered"];
         if(!validStatuses.includes(status))return appRes(res,200,'','Invalid status',{});
-        const updatedOrder = await Order.findByIdAndUpdate(
+        const updatedStatus = await Order.findByIdAndUpdate(
             id,
             { status },
             { new: true }
           );
-        if(!updatedOrder)return next(appErr('No order found!',404));
-        appRes(res,200,'','Order updated successfully',{updatedOrder});
+        if(!updatedStatus)return next(appErr('No order found!',404));
+        appRes(res,200,'','Order-status updated successfully',{updatedStatus:status});
+    }
+);
+
+export const markOrderAsViewed = TryCatch( 
+    async(req:Request, res:Response,next:NextFunction)=>{
+        const {id} = req.params;
+        const {viewed} = req.body;
+        const viewedOrder = await Order.findByIdAndUpdate(
+            id,
+            { viewed },
+            { new: true }
+          );
+        if(!viewedOrder)return next(appErr('No order found!',404));
+        appRes(res,200,'','Order-viewed updated successfully',{viewedOrder:viewed});
     }
 );

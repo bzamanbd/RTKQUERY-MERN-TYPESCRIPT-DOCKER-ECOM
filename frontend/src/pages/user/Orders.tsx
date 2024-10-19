@@ -64,13 +64,8 @@ const UserOrdersPage: FC = () => {
                 <TableCell>{order.total}</TableCell>
                 <TableCell>{formattedDate}</TableCell>
                 <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded-full text-white ${
-                      order.status === 'Completed'
-                        ? 'bg-green-500'
-                        : 'bg-yellow-500'
-                    }`}
-                  >
+                  <span className={`px-2 py-1 rounded-full text-white ${
+                    order.status === 'Delivered' ? 'bg-green-500' :  order.status === 'Shipped' ? 'bg-orange-500': 'bg-yellow-500' }`}>
                     {order.status}
                   </span>
                 </TableCell>

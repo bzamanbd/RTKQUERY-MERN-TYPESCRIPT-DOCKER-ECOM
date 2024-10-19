@@ -1,6 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
-import {  MyOrderResponse, MyOrdersResponse, NewOrderRequestData, UpdateOrderStatusResponse } from "../../../types/api-types";
+import {  MyOrderResponse, MyOrdersResponse, NewOrderRequestData, Order, UpdateOrderStatusResponse } from "../../../types/api-types";
+
+import { getSocket } from "../../../socket";
+
+
 export const  orderAPI = createApi({ 
     reducerPath: 'orderAPI',
     baseQuery: fetchBaseQuery({ 
@@ -40,8 +44,28 @@ export const  orderAPI = createApi({
             providesTags: ['Orders'], // Tag for products query
         }),
 
-        allOrders:builder.query<MyOrdersResponse, string>({ 
-            query: ()=>"all", 
+        allOrders:builder.query<MyOrdersResponse, void>({ 
+            query: ()=>"all",
+            async onCacheEntryAdded(_,{updateCachedData, cacheDataLoaded, cacheEntryRemoved}){
+                // Connect to the socket
+                const socket = getSocket(); 
+                try {
+                    await cacheDataLoaded;
+                    // Listen for new orders and update the cache
+                    socket?.on('newOrder',(newOrder:Order)=>{ 
+                        updateCachedData((draft)=>{ 
+                            if(Array.isArray(draft)){ 
+                                draft.unshift(newOrder);
+                            }
+                        })
+                    })
+                } catch (error) {
+                    console.error('Error handling new order via socket:', error);
+                }
+                // Cleanup when cache subscription is removed
+                await cacheEntryRemoved;
+                socket?.off('newOrder');
+            },
             providesTags: ['Orders'], // Tag for products query
         }),
 
@@ -68,7 +92,16 @@ export const  orderAPI = createApi({
             invalidatesTags: ['Orders'], // Invalidate the products cache
         }),
 
+        markOrderAsViewed:builder.mutation<UpdateOrderStatusResponse, { id: string; viewed: boolean }>({ 
+            query: ({id, viewed})=>({ 
+                url: `${id}`,
+                method: "PATCH",
+                body: {viewed}
+            }),
+            invalidatesTags: ['Orders'], // Invalidate the products cache
+        }),
+
     }), 
 })
 
-export const {useCreateOrderMutation,useMyOrdersQuery, useMyOrderByIdQuery,useAllOrdersQuery, useFetchOrderByIdQuery, useDeleteOrderByIdMutation, useUpdateOrderStatusMutation} = orderAPI;
+export const {useCreateOrderMutation,useMyOrdersQuery, useMyOrderByIdQuery,useAllOrdersQuery, useFetchOrderByIdQuery, useDeleteOrderByIdMutation, useUpdateOrderStatusMutation, useMarkOrderAsViewedMutation} = orderAPI;

@@ -40,7 +40,7 @@ const OrderModal: FC<OrderModalProps> = ({orderId, isOpen, onClose }) => {
               <div className='flex items-center justify-between'>
                 <span>{`Created At: ${formattedDate}`}</span>
                 <span className={`px-2 py-1 rounded-full text-white 
-                  ${ order.status === 'Completed' ? 'bg-green-500' : 'bg-yellow-500'}`}>
+                  ${ order.status === 'Delivered' ? 'bg-green-500' : order.status === 'Shipped' ? 'bg-orange-500': 'bg-yellow-500'}`}>
                   {order.status}
                 </span>
               </div> 

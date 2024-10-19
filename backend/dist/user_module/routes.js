@@ -12,6 +12,7 @@ const avatarUploader = (0, imageUploader_1.default)('avatar');
 routes.get("/", auth_1.isLoggedIn, auth_1.isAdmin, controllers_1.fetchUsers);
 routes.get("/:id", auth_1.isLoggedIn, auth_1.isAdmin, controllers_1.fetchUser);
 routes.put("/:id", auth_1.isLoggedIn, auth_1.isAdmin, controllers_1.updateUser);
+routes.patch("/:id/block", auth_1.isLoggedIn, auth_1.isAdmin, controllers_1.blockUser);
 routes.delete("/:id", auth_1.isLoggedIn, auth_1.isAdmin, controllers_1.deleteUser);
 routes.get("/user/profile", auth_1.isLoggedIn, controllers_1.fetchProfile);
 routes.put("/user/update", auth_1.isLoggedIn, avatarUploader, controllers_1.updateProfile);

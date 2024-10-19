@@ -16,8 +16,7 @@ export const fetchUsers = TryCatch(
         const limit = Number(req.query.limit || 5)
         const searchRexExp = new RegExp('.*' + search + '.*', 'i')
         const filter = { 
-            $or:[ 
-                {name:{$regex:searchRexExp}},
+            $or:[ {name:{$regex:searchRexExp}},
                 {email:{$regex:searchRexExp}},
                 {phone:{$regex:searchRexExp}}
             ]
@@ -65,6 +64,24 @@ export const updateUser = TryCatch(
         ) 
         if(!user)return next(appErr('user did not updated, something went wrong!',500))
         appRes(res,200,'','User is updated successfully!',{user})
+    }
+)
+
+
+export const blockUser = TryCatch( 
+    async(req:Request, res:Response, next:NextFunction)=>{ 
+        const _id = req.params.id 
+        const payload = req.body
+        const existUser = await User.findById(_id) 
+        if(!existUser)return next(appErr('user not found',404));
+        const user = await User.findByIdAndUpdate(
+            _id,
+            {$set:payload},
+            {new:true, runValidators:true}
+        ) 
+        if(!user)return next(appErr('user did not updated, something went wrong!',500))
+        if(user.isBanned) return appRes(res,200,'',`User's account is blocked successfully`,{user})
+        appRes(res,200,'',`User's account is unblocked successfully`,{user})
     }
 )
 

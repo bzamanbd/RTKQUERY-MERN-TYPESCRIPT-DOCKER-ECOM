@@ -18,7 +18,7 @@ export const  userAPI = createApi({
     tagTypes: ['Users'], // Add a tag for users
     endpoints:(builder)=>({         
 
-        fetchUsers:builder.query<UsersResponse, string>({ 
+        fetchUsers:builder.query<UsersResponse, void>({ 
             query: ()=>"", 
             providesTags: ['Users'], // Tag for users query
         }),

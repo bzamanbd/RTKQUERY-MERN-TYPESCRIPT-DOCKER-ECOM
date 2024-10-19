@@ -9,7 +9,8 @@ import {
     fetchQuestion,
     resetPassword,
     updatePassword,
-    deleteOwnAccount
+    deleteOwnAccount,
+    blockUser
 } from "./controllers"
 import { isAdmin, isLoggedIn } from "../middlewares/auth"
 import imageUploader from '../middlewares/imageUploader';
@@ -22,6 +23,7 @@ const avatarUploader = imageUploader('avatar');
 routes.get("/", isLoggedIn, isAdmin, fetchUsers)
 routes.get("/:id", isLoggedIn, isAdmin, fetchUser)
 routes.put("/:id", isLoggedIn, isAdmin, updateUser)
+routes.patch("/:id/block", isLoggedIn, isAdmin, blockUser)
 routes.delete("/:id", isLoggedIn, isAdmin, deleteUser)
 routes.get("/user/profile", isLoggedIn, fetchProfile)
 routes.put("/user/update", isLoggedIn, avatarUploader, updateProfile)

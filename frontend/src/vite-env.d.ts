@@ -14,6 +14,7 @@ interface ImportMeta {
 }
 
 export type User = {
+    _id?: string;
     name?: string;
     email?: string;
     password?: string,
@@ -21,9 +22,11 @@ export type User = {
     address?: string;
     avatar?: string;
     question?: string;
+    answer?: string;
     role?: string;
     isBanned?: boolean;
-    orders?: []
+    orders?: [];
+    createdAt?: Date;
 }
 
 export type Product = {

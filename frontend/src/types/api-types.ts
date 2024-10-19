@@ -76,6 +76,7 @@ export type Order = {
     customer: string;
     payment: number;
     status: string;
+    viewed: boolean;
     createdAt: string;
 }
 

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateOrderStatus = exports.deleteOwnOrder = exports.deleteOrder = exports.myOrderById = exports.myOrders = exports.fetchOrderQRCode = exports.fetchOrder = exports.fetchOrders = exports.createOrder = void 0;
+exports.markOrderAsViewed = exports.updateOrderStatus = exports.deleteOwnOrder = exports.deleteOrder = exports.myOrderById = exports.myOrders = exports.fetchOrderQRCode = exports.fetchOrder = exports.fetchOrders = exports.createOrder = void 0;
 const product_1 = require("./../models/product");
 const tryCatch_1 = __importDefault(require("../middlewares/tryCatch"));
 const appErr_1 = __importDefault(require("../utils/appErr"));
@@ -75,6 +75,10 @@ exports.createOrder = (0, tryCatch_1.default)(async (req, res, next) => {
     order.invoicePath = pdfPath;
     order.qrCode = qrCodePath;
     await order.save();
+    // Emit the newOrder event if io is defined
+    if (req.io) {
+        req.io.emit('newOrder', order);
+    }
     (0, appRes_1.default)(res, 201, '', 'New order created', { order });
 });
 exports.fetchOrders = (0, tryCatch_1.default)(async (req, res, next) => {
@@ -89,7 +93,7 @@ exports.fetchOrder = (0, tryCatch_1.default)(async (req, res, next) => {
         return next((0, appErr_1.default)('id is required', 400));
     if (!mongoose_1.default.Types.ObjectId.isValid(orderId))
         return next((0, appErr_1.default)('Invalid ID format', 400));
-    const order = await order_1.Order.findById({ _id: orderId }).populate("customer", "name");
+    const order = await order_1.Order.findById({ _id: orderId }).populate("customer", "name email phone address avatar");
     if (!order)
         return (0, appRes_1.default)(res, 200, '', `Order not found!`, { order });
     (0, appRes_1.default)(res, 200, '', `Order found!`, { order });
@@ -149,8 +153,16 @@ exports.updateOrderStatus = (0, tryCatch_1.default)(async (req, res, next) => {
     const validStatuses = ["Processing", "Shipped", "Delivered"];
     if (!validStatuses.includes(status))
         return (0, appRes_1.default)(res, 200, '', 'Invalid status', {});
-    const updatedOrder = await order_1.Order.findByIdAndUpdate(id, { status }, { new: true });
-    if (!updatedOrder)
+    const updatedStatus = await order_1.Order.findByIdAndUpdate(id, { status }, { new: true });
+    if (!updatedStatus)
         return next((0, appErr_1.default)('No order found!', 404));
-    (0, appRes_1.default)(res, 200, '', 'Order updated successfully', { updatedOrder });
+    (0, appRes_1.default)(res, 200, '', 'Order-status updated successfully', { updatedStatus: status });
+});
+exports.markOrderAsViewed = (0, tryCatch_1.default)(async (req, res, next) => {
+    const { id } = req.params;
+    const { viewed } = req.body;
+    const viewedOrder = await order_1.Order.findByIdAndUpdate(id, { viewed }, { new: true });
+    if (!viewedOrder)
+        return next((0, appErr_1.default)('No order found!', 404));
+    (0, appRes_1.default)(res, 200, '', 'Order-viewed updated successfully', { viewedOrder: viewed });
 });
