@@ -29,9 +29,8 @@ const RouterWrapper: FC = () => {
   return (
     <BrowserRouter>
       <Toaster position="top-center" toastOptions={{style: {background:'#4CAF50',color:'#FFFFFF'},duration:5000}}/>
-      
       <Routes>
-        <Route path="/" element={<PrimaryLayout><Home /></PrimaryLayout>} />
+        <Route path="/" element={<Home /> }/>
         <Route path="/register" element={<SecondaryLayout><Register /></SecondaryLayout>} />
         <Route path="/login" element={<SecondaryLayout><Login /></SecondaryLayout>} />
         <Route path="/shop" element={<SecondaryLayout><Shop /></SecondaryLayout>} />
@@ -48,10 +47,7 @@ const RouterWrapper: FC = () => {
           </Route>
           <Route path="user/shipping" element={<UserShippingAddressPage />} />
           <Route path="user/pay" element={<Checkout/>} />
-
         </Route>
-
-
 
         <Route path='/dashboard' element={<AdminRoute/>}> 
           <Route path="admin" element={<PrimaryLayout> <AdminDashboard/></PrimaryLayout>}>
