@@ -6,6 +6,7 @@ import Hero from "../../components/Hero/Hero";
 import TopProducts from "../../components/TopProducts/TopProducts";
 import UpperBanner from "../../components/UpperBanner/UpperBanner";
 import LatestProducts from "../../components/LatestProducts/LatestProducts";
+import CategoryOneProducts from "../../components/CategoryOne/CategoryOneProducts";
 
 
 
@@ -17,10 +18,11 @@ const Home: FC = () => {
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
       <Navbar handleOrderPopup={handleOrderPopup} />
-      <Hero/>
-      <UpperBanner/>
-      <LatestProducts/>
-      <TopProducts/>
+      <Hero />
+      <UpperBanner />
+      <LatestProducts />
+      <CategoryOneProducts />
+      <TopProducts />
       {/* <Hero handleOrderPopup={handleOrderPopup} /> */}
       <Products />
       {/* <TopProducts handleOrderPopup={handleOrderPopup} /> */}

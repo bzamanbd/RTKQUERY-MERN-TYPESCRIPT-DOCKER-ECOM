@@ -14,13 +14,27 @@ const ShopPage: FC = () => {
   const [maxPrice, setMaxPrice] = useState(10000);
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
-  const {data:categoryResponse, isLoading:loadingCategories, isError:categoryIsError} = useCategoryQuery(""); 
-  const {data:searchData, isLoading:searchProductsLoading,isError:searchProductIsError} = useSearchProductsQuery({
-    search, sort, price:maxPrice, category, page 
+
+  const {
+    data: categoryResponse,
+    isLoading: loadingCategories,
+    isError: categoryIsError,
+  } = useCategoryQuery();
+
+  const {
+    data: searchData,
+    isLoading: searchProductsLoading,
+    isError: searchProductIsError,
+  } = useSearchProductsQuery({
+    search,
+    sort,
+    price: maxPrice,
+    category,
+    page,
   });
-  const isPrevPage = page > 1; 
+  const isPrevPage = page > 1;
   const isNextPage = page < 4;
-  if(categoryIsError)return toast.error(categoryResponse!.message);
+  if (categoryIsError) return toast.error(categoryResponse!.message);
   if(searchProductIsError)return toast.error(searchData!.message);
   
   const addToCartHandler = (newCartItem:CartItem)=>{ 
